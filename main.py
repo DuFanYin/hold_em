@@ -1,5 +1,4 @@
 import random
-from check_combi import check_combi
 
 # clubs, diamonds, hearts or spades
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -30,10 +29,6 @@ def shuffle_cards(cards):
 shuffled_card = shuffle_cards(cards)
         
 
-def take_card(cards):
-    card = cards.popitem()
-    return card
-
 class table():
     def __init__(self):
         self.cards = []
@@ -41,15 +36,26 @@ class table():
     def add_card(self, card):
         self.cards.append(card)
 
+    def display_cards(self):
+        print('cards on the table: ')
+        for item in self.cards:
+            print(item[0], end=' ')
+
 
 class Player():
-    def __init__(self, chips):
+    def __init__(self, name, chips):
+        self.name = name
         self.chips = chips
         self.cards = []
         self.fold = False
 
     def add_card(self, card):
         self.cards.append(card)
+
+    def display_cards(self):
+        print(self.name + ', your cards are: ')
+        for item in self.cards:
+            print(item[0], end = ' ')
 
     def action(self, action_name):
         if action_name == 'check':
@@ -63,8 +69,52 @@ class Player():
 
 
 
+# wrapper function to distribute cards at diff game stage
+def distribute(stage, cards, table, players):
+    # pre-flop, each player gets two cards
+    def pre_flop(cards, players):
+        for player in players:
+            player.add_card(cards.popitem())
+            player.add_card(cards.popitem())
+
+    # flop, table gets three cards
+    def flop(cards, table):
+        table.add_card(cards.popitem())
+        table.add_card(cards.popitem())
+        table.add_card(cards.popitem())
+
+    # turn, table gets one card
+    def turn(cards, table):
+        table.add_card(cards.popitem())
+
+    # river, table gets three cards
+    def river(cards, table):
+        table.add_card(cards.popitem())
+
+    if stage == 'pre_flop':
+        pre_flop(cards, players)
+    elif stage == 'flop':
+        flop(cards, table)
+    elif stage == 'turn':
+        turn(cards, table)
+    else:
+        river(cards, table)
+
+
+def display(table, players):
+        print(table.display_cards())
+        for player in players:
+            print()
+
 def game_loop():
+    pot = 0
+    game_stage = ['pre-flop', 'flop', 'turn', 'river']
+    Players = []
+    Table = table()
+
+    
+
     pass
 
-from check_combi import check_combi
-check_combi()
+def check_combi(table, player):
+    pass
