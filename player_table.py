@@ -6,6 +6,9 @@ class Player:
         self.buffer = 0
         self.state = 'wating action'
 
+    def get_name(self):
+        return self.name
+    
     def get_state(self):
         return self.state
     
@@ -29,17 +32,21 @@ class Player:
         print('bet placed:  '+str(self.buffer))
         print(self.state)
 
-    def action(self, action_name):
-        if action_name == 'check':
-            self.state = 'check'
-        elif action_name == 'call':
-            self.state = 'call'
-        elif action_name == 'raise':
-            self.state = 'raise'
-        elif action_name == 'fold':
-            self.state = 'fold'
-        else:
-            print('wrong action name')
+    def action_handle_check(self):
+        self.state = 'check'
+
+    def action_handle_call(self, number_to_call):
+        self.chips -= number_to_call
+        self.buffer += number_to_call
+        self.state = 'call'
+
+    def action_handle_raise(self, number_to_raise):
+        self.chips -= number_to_raise
+        self.buffer += number_to_raise
+        self.state = 'raise'
+
+    def action_handle_fold(self):
+        self.state = 'fold'
 
     def get_cards(self):
         return self.cards

@@ -63,22 +63,36 @@ def distribute(stage, cards, table, players):
 def collect_bet(players, pot):
     for player in players:
         bet = player.take_buffer()
+        print('take bet success' + str(bet))
         pot += bet
+    return pot
 
 
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot):
+    number_to_call = 0
     distribute(stage, cards, table, players)
     show_board(stage, pot, table, players)
     for player in players:
         if player.get_state() == 'fold':
             pass
         else:
+            print(player.get_name())
             action = input('what action to take? (check, call, raise, fold)' +'\n')
-            player.action(action)
-        show_board(stage, pot, table, players)
+            if action == 'check':
+                player.action_handle_check()
+            elif action == 'call':
+                player.action_handle_call(number_to_call)
+            elif action == 'raise':
+                number_to_raise = int(input('how much whould you like to raise?' + '\n'))
+                player.action_handle_raise(number_to_raise)
+                number_to_call = number_to_raise
+            elif action == 'fold':
+                player.action_handle_fold()
+            else:
+                print('wrong action name')
+        #show_board(stage, pot, table, players)
 
-    collect_bet(players, pot)
 
 
 # display the board
@@ -86,7 +100,7 @@ def show_board(stage, pot, table, players):
     print('*'*30)
     print()
     print('current stage: '+stage)
-    print('current pot:   ' + str(pot))
+    print('current pot:  ' + str(pot))
     print('-'*30)
     table.display_cards()
     print()
@@ -106,9 +120,13 @@ def game(players, cards):
     pot = 0
     table = Table()
     game_stage('pre_flop', shuffled_card, table, players, pot)
+    pot += collect_bet(players, pot)
     game_stage('flop', shuffled_card, table, players, pot)
+    pot += collect_bet(players, pot)
     game_stage('turn', shuffled_card, table, players, pot)
+    pot += collect_bet(players, pot)
     game_stage('river', shuffled_card, table, players, pot)
+    pot += collect_bet(players, pot)
 
 
 play1 = Player('a', 100)
@@ -117,3 +135,4 @@ play3 = Player('c', 100)
 players = [play1, play2, play3]
 
 game(players, cards)
+
