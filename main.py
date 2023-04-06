@@ -1,4 +1,5 @@
 import random
+from PT import Player, Table
 
 # clubs, diamonds, hearts or spades
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -27,58 +28,6 @@ def shuffle_cards(cards):
     return shuffled_card
 
 shuffled_card = shuffle_cards(cards)
-        
-class Table():
-    def __init__(self):
-        self.cards = []
-
-    def add_card(self, card):
-        self.cards.append(card)
-
-    def display_cards(self):
-        print('cards on the table: ')
-        for item in self.cards:
-            print(item[0], end=' ')
-
-
-class Player():
-    def __init__(self, name, chips):
-        self.name = name
-        self.chips = chips
-        self.cards = []
-        self.buffer = 0
-        self.fold = False
-
-    def add_card(self, card):
-        self.cards.append(card)
-
-    def place_bet(self, bet):
-        self.chips -= bet
-        self.buffer += bet
-
-    def take_buffer(self):
-        bet = self.buffer
-        self.buffer = 0
-        return bet
-
-    def display(self):
-        print(self.name + ', your cards are: ')
-        for item in self.cards:
-            print(item[0], end = ' ')
-        print()
-        print('bet placed:  '+str(self.buffer))
-
-    def action(self, action_name):
-        if action_name == 'check':
-            pass
-        elif action_name == 'call':
-            pass
-        elif action_name == 'raise':
-            pass
-        else:
-            self.fold = True
-
-
 
 # wrapper function to distribute cards at diff game stage
 def distribute(stage, cards, table, players):
@@ -118,12 +67,13 @@ def collect_bet(players, pot):
         pot += bet
 
 
-
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot):
     distribute(stage, cards, table, players)
-
-    # other actions
+    for player in players:
+        show_board(pot, table, players)
+        action = input('what action to take? (check, call, raise, fold)')
+        player.action(action)
 
     collect_bet(players, pot)
 
@@ -131,19 +81,38 @@ def show_board(pot, table, players):
     print('current pot:  ' + str(pot))
     print('-'*10)
     table.display_cards()
+    print()
     print('-'*10)
     for player in players:
         player.display()
         print('-'*10)
 
 # one round of game
-def hand(players):
+'''def hand(players):
     pot = 0
     table = Table()
+    game_stage('pre_flop', cards, table, players, pot)
+    game_stage('flop', cards, table, players, pot)
+    game_stage('turn', cards, table, players, pot)
+    game_stage('river', cards, table, players, pot)
+'''
 
-    
-
-    pass
 
 def check_combi(table, player):
     pass
+
+def game(players, cards):
+    pot = 0
+    table = Table()
+    game_stage('pre_flop', cards, table, players, pot)
+    game_stage('flop', cards, table, players, pot)
+    game_stage('turn', cards, table, players, pot)
+    game_stage('river', cards, table, players, pot)
+
+
+play1 = Player('a', 100)
+play2 = Player('b', 100)
+play3 = Player('c', 100)
+players = [play1, play2, play3]
+
+game(players, shuffled_card)

@@ -5,6 +5,7 @@ class Player:
         self.cards = []
         self.buffer = 0
         self.fold = False
+        self.state = 'wating action'
 
     def add_card(self, card):
         self.cards.append(card)
@@ -24,16 +25,19 @@ class Player:
             print(item[0], end = ' ')
         print()
         print('bet placed:  '+str(self.buffer))
+        print(self.state)
 
     def action(self, action_name):
         if action_name == 'check':
-            pass
+            self.state = 'check'
         elif action_name == 'call':
-            pass
+            self.state = 'call'
         elif action_name == 'raise':
-            pass
-        else:
+            self.state = 'raise'
+        elif action_name == 'fold':
             self.fold = True
+        else:
+            print('wrong action name')
 
 class Table:
     def __init__(self):
