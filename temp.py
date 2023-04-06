@@ -28,6 +28,108 @@ def shuffle_cards(cards):
 
 shuffled_card = shuffle_cards(cards)
 
-item = shuffled_card.popitem()
-print(item)
 
+class Table():
+    def __init__(self):
+        self.cards = []
+
+    def add_card(self, card):
+        self.cards.append(card)
+
+    def display_cards(self):
+        print('cards on the table: ')
+        for item in self.cards:
+            print(item[0], end=' ')
+
+class Player():
+    def __init__(self, name, chips):
+        self.name = name
+        self.chips = chips
+        self.cards = []
+        self.buffer = 0
+        self.fold = False
+
+    def add_card(self, card):
+        self.cards.append(card)
+
+    def place_bet(self, bet):
+        self.chips -= bet
+        self.buffer += bet
+
+    def take_buffer(self):
+        bet = self.buffer
+        self.buffer = 0
+        return bet
+
+    def display(self):
+        print(self.name + ', your cards are: ')
+        for item in self.cards:
+            print(item[0], end = ' ')
+        print()
+        print('bet placed:  '+str(self.buffer))
+
+    def action(self, action_name):
+        if action_name == 'check':
+            pass
+        elif action_name == 'call':
+            pass
+        elif action_name == 'raise':
+            pass
+        else:
+            self.fold = True
+
+def distribute(stage, cards, table, players):
+    # pre-flop, each player gets two cards
+    def pre_flop(cards, players):
+        for player in players:
+            player.add_card(cards.popitem())
+            player.add_card(cards.popitem())
+
+    # flop, table gets three cards
+    def flop(cards, table):
+        table.add_card(cards.popitem())
+        table.add_card(cards.popitem())
+        table.add_card(cards.popitem())
+
+    # turn, table gets one card
+    def turn(cards, table):
+        table.add_card(cards.popitem())
+
+    # river, table gets three cards
+    def river(cards, table):
+        table.add_card(cards.popitem())
+
+    if stage == 'pre_flop':
+        pre_flop(cards, players)
+    elif stage == 'flop':
+        flop(cards, table)
+    elif stage == 'turn':
+        turn(cards, table)
+    elif stage == 'river':
+        river(cards, table)
+    else:
+        print('wrong stage')
+
+
+T = Table()
+
+play1 = Player('p1', 100)
+play2 = Player('p2', 100)
+play3 = Player('p3', 100)
+play4 = Player('p4', 100)
+players = [play1, play2, play3, play4]
+
+distribute('pre_flop', shuffled_card, T, players)
+distribute('flop', shuffled_card, T, players)
+
+def show_board(pot, table, players):
+    print('current pot:  ' + str(pot))
+    print('-'*10)
+    table.display_cards()
+    print()
+    print('-'*10)
+    for player in players:
+        player.display()
+        print('-'*10)
+
+show_board(0, T, players)
