@@ -1,4 +1,5 @@
 ver 1.0
+
     multiple players
 
     can see each others cards
@@ -12,31 +13,25 @@ To be done:
 
 
 Done:
-    able to shuffle cards 
 
-    able to give out cards in four stages
-
-    able to display the board
-
-        cards on the table
-
+    1. able to shuffle cards
+    2. able to give out cards in four stages
+    3. able to display the board
+    4. cards on the table
         players card
-
         money in the pot
-
         bet placed by players
-
-    after place bet, bet goes into pot
-
-    player now can fold
+    5.  able to check if any combination exist
+    6. after place bet, bet goes into pot
+    7. player now can fold 
 
     combi checking
-        1. Royal flush     # done
+        1. Royal flush     
         2. Straight flush 
-        3. Four of a kind  #done
+        3. Four of a kind  
         4. Full house
         5. Flush
-        6. Straight        # done
+        6. Straight        
         7. Three of a kind
         8. Two pair
         9. Pair
