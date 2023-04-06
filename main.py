@@ -60,13 +60,15 @@ def distribute(stage, cards, table, players):
         river(cards, table)
 
 # after all player placed chips, collect and put in pot
-def collect_bet(players, pot):
+def collect_bet(players):
+    bet = 0
     for player in players:
-        bet = player.take_buffer()
-        print('take bet success' + str(bet))
-        pot += bet
-    return pot
+        bet += player.take_buffer()
+    return bet
 
+def reset(players):
+    for player in players:
+        player.reset_state()
 
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot):
@@ -78,6 +80,7 @@ def game_stage(stage, cards, table, players, pot):
             pass
         else:
             print(player.get_name())
+            print('you have chips: '+ str(player.get_chips()))
             action = input('what action to take? (check, call, raise, fold)' +'\n')
             if action == 'check':
                 player.action_handle_check()
@@ -119,14 +122,16 @@ def game(players, cards):
     shuffled_card = shuffle_cards(cards)
     pot = 0
     table = Table()
-    game_stage('pre_flop', shuffled_card, table, players, pot)
-    pot += collect_bet(players, pot)
-    game_stage('flop', shuffled_card, table, players, pot)
-    pot += collect_bet(players, pot)
-    game_stage('turn', shuffled_card, table, players, pot)
-    pot += collect_bet(players, pot)
-    game_stage('river', shuffled_card, table, players, pot)
-    pot += collect_bet(players, pot)
+
+    # during game
+    game_stage_list = ['pre_flop', 'flop', 'turn', 'river']
+    for item in game_stage_list:
+        game_stage(item, shuffled_card, table, players, pot)
+        pot += collect_bet(players)
+        reset(players)
+
+
+    # calculate winner
 
 
 play1 = Player('a', 100)

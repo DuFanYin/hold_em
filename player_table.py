@@ -6,11 +6,23 @@ class Player:
         self.buffer = 0
         self.state = 'wating action'
 
+    def reset_state(self):
+        if self.state == 'fold':
+            pass
+        else:
+            self.state = 'wating action'
+
     def get_name(self):
         return self.name
     
     def get_state(self):
         return self.state
+    
+    def get_cards(self):
+        return self.cards
+    
+    def get_chips(self):
+        return self.chips
     
     def add_card(self, card):
         self.cards.append(card)
@@ -48,8 +60,7 @@ class Player:
     def action_handle_fold(self):
         self.state = 'fold'
 
-    def get_cards(self):
-        return self.cards
+
 
 
 class Table:
