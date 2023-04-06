@@ -1,5 +1,6 @@
 import random
 from PT import Player, Table
+from check_combi import *
 
 # cs, ds, hs or ss
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -72,5 +73,39 @@ players = [play1, play2, play3, play4]
 
 distribute('pre_flop', shuffled_card, T, players)
 distribute('flop', shuffled_card, T, players)
+distribute('turn', shuffled_card, T, players)
+distribute('river', shuffled_card, T, players)
 
-print(play1.get_state())
+card = check_combi(T, play1)
+def royal_flush(cards):
+        if cards[-1][0][0] != 'A':
+            return False
+        
+set_of_five = card[2:2+5]
+
+print(card)
+print(set_of_five)
+
+def straight(cards):
+        def check_straight(set_of_five):
+            is_straight = True
+            for i in range(1,5):
+                if set_of_five[i][1] - 1 != set_of_five[i-1][1]:
+                    is_straight = False
+                    break
+            return is_straight
+
+        flag = False
+        straight_set = None
+        for i in range(3):
+            set_of_five = cards[i:i+5]
+            if check_straight(set_of_five):
+                flag = True
+                straight_set = set_of_five
+
+        return flag, straight_set
+
+
+test_set = [('2_C', 1), ('5_S', 4), ('6_S', 5), ('7_S', 6), ('8_C', 7), ('9_S', 8), ('J_D', 10)]
+result = straight(test_set)
+print(result)

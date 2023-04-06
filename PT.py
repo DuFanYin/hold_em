@@ -41,6 +41,10 @@ class Player:
         else:
             print('wrong action name')
 
+    def get_cards(self):
+        return self.cards
+
+
 class Table:
     def __init__(self):
         self.cards = []
@@ -52,3 +56,6 @@ class Table:
         print('cards on the table: ')
         for item in self.cards:
             print(item[0], end=' ')
+
+    def get_cards(self):
+        return self.cards

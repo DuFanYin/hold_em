@@ -12,14 +12,24 @@ To be done:
 
 
 Done:
-    able to shuffle cards
+    able to shuffle cards 
+
     able to give out cards in four stages
+
     able to display the board
+
         cards on the table
+
         players card
+
         money in the pot
+
         bet placed by players
+
     after place bet, bet goes into pot
+
+    player now can fold
+
 
 potential bug:
     cards might run out if player number > 

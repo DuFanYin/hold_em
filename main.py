@@ -8,7 +8,7 @@ cards = { 'A_C' : 13, 'A_D' : 13, 'A_H' : 13, 'A_S' : 13,
           'K_C' : 12, 'K_D' : 12, 'K_H' : 12, 'K_S' : 12,
           'Q_C' : 11, 'Q_D' : 11, 'Q_H' : 11, 'Q_S' : 11,
           'J_C' : 10, 'J_D' : 10, 'J_H' : 10,'J_S' : 10,
-          '10_C' : 9, '10_D' : 9, '10_H' : 9, '10_S' : 9,
+          'T_C' : 9, 'T_D' : 9, 'T_H' : 9, 'T_S' : 9,
           '9_C' : 8, '9_D' : 8, '9_H' : 8, '9_S' : 8,
           '8_C' : 7, '8_D' : 7, '8_H' : 7, '8_S' : 7,
           '7_C' : 6, '7_D' : 6, '7_H' : 6, '7_S' : 6,
@@ -27,7 +27,6 @@ def shuffle_cards(cards):
         shuffled_card[key] = cards.get(key)
     return shuffled_card
 
-shuffled_card = shuffle_cards(cards)
 
 # wrapper function to distribute cards at diff game stage
 def distribute(stage, cards, table, players):
@@ -73,9 +72,9 @@ def game_stage(stage, cards, table, players, pot):
     for player in players:
         show_board(stage, pot, table, players)
         if player.get_state() == 'fold':
-            pass
+            print('player folded')
         else:
-            action = input('what action to take? (check, call, raise, fold)')
+            action = input('what action to take? (check, call, raise, fold)' +'\n')
             player.action(action)
 
     collect_bet(players, pot)
@@ -98,16 +97,14 @@ def show_board(stage, pot, table, players):
     print()
 
 
-def check_combi(table, player):
-    pass
-
 def game(players, cards):
+    shuffled_card = shuffle_cards(cards)
     pot = 0
     table = Table()
-    game_stage('pre_flop', cards, table, players, pot)
-    game_stage('flop', cards, table, players, pot)
-    game_stage('turn', cards, table, players, pot)
-    game_stage('river', cards, table, players, pot)
+    game_stage('pre_flop', shuffled_card, table, players, pot)
+    game_stage('flop', shuffled_card, table, players, pot)
+    game_stage('turn', shuffled_card, table, players, pot)
+    game_stage('river', shuffled_card, table, players, pot)
 
 
 play1 = Player('a', 100)
@@ -115,4 +112,4 @@ play2 = Player('b', 100)
 play3 = Player('c', 100)
 players = [play1, play2, play3]
 
-game(players, shuffled_card)
+game(players, cards)
