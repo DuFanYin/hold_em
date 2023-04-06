@@ -71,31 +71,31 @@ def collect_bet(players, pot):
 def game_stage(stage, cards, table, players, pot):
     distribute(stage, cards, table, players)
     for player in players:
-        show_board(pot, table, players)
-        action = input('what action to take? (check, call, raise, fold)')
-        player.action(action)
+        show_board(stage, pot, table, players)
+        if player.get_state() == 'fold':
+            pass
+        else:
+            action = input('what action to take? (check, call, raise, fold)')
+            player.action(action)
 
     collect_bet(players, pot)
 
-def show_board(pot, table, players):
-    print('current pot:  ' + str(pot))
+
+# display the board
+def show_board(stage, pot, table, players):
+    print('current stage: '+stage+'  current pot:  ' + str(pot))
     print('-'*10)
     table.display_cards()
     print()
     print('-'*10)
     for player in players:
-        player.display()
+        if player.get_state() == 'fold':
+            pass
+        else:
+            player.display()
         print('-'*10)
-
-# one round of game
-'''def hand(players):
-    pot = 0
-    table = Table()
-    game_stage('pre_flop', cards, table, players, pot)
-    game_stage('flop', cards, table, players, pot)
-    game_stage('turn', cards, table, players, pot)
-    game_stage('river', cards, table, players, pot)
-'''
+    print()
+    print()
 
 
 def check_combi(table, player):

@@ -73,14 +73,4 @@ players = [play1, play2, play3, play4]
 distribute('pre_flop', shuffled_card, T, players)
 distribute('flop', shuffled_card, T, players)
 
-def show_board(pot, table, players):
-    print('current pot:  ' + str(pot))
-    print('-'*10)
-    table.display_cards()
-    print()
-    print('-'*10)
-    for player in players:
-        player.display()
-        print('-'*10)
-
-show_board(0, T, players)
+print(play1.get_state())

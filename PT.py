@@ -4,9 +4,11 @@ class Player:
         self.chips = chips
         self.cards = []
         self.buffer = 0
-        self.fold = False
         self.state = 'wating action'
 
+    def get_state(self):
+        return self.state
+    
     def add_card(self, card):
         self.cards.append(card)
 
@@ -35,7 +37,7 @@ class Player:
         elif action_name == 'raise':
             self.state = 'raise'
         elif action_name == 'fold':
-            self.fold = True
+            self.state = 'fold'
         else:
             print('wrong action name')
 

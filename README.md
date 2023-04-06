@@ -1,12 +1,15 @@
 ver 1.0
     multiple players
+
     can see each others cards
+
     play one hand
 
 
 To be done:
+
     check bet is samller than number of chips
-    
+
 
 Done:
     able to shuffle cards
