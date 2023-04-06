@@ -1,5 +1,5 @@
 import random
-from PT import Player, Table
+from player_table import Player, Table
 #from check_combi import *
 
 # cs, ds, hs or ss

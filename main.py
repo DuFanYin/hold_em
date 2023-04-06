@@ -1,5 +1,5 @@
 import random
-from PT import Player, Table
+from player_table import Player, Table
 
 # clubs, diamonds, hearts or spades
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -69,32 +69,36 @@ def collect_bet(players, pot):
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot):
     distribute(stage, cards, table, players)
+    show_board(stage, pot, table, players)
     for player in players:
-        show_board(stage, pot, table, players)
         if player.get_state() == 'fold':
-            print('player folded')
+            pass
         else:
             action = input('what action to take? (check, call, raise, fold)' +'\n')
             player.action(action)
+        show_board(stage, pot, table, players)
 
     collect_bet(players, pot)
 
 
 # display the board
 def show_board(stage, pot, table, players):
-    print('current stage: '+stage+'  current pot:  ' + str(pot))
-    print('-'*10)
+    print('*'*30)
+    print()
+    print('current stage: '+stage)
+    print('current pot:   ' + str(pot))
+    print('-'*30)
     table.display_cards()
     print()
-    print('-'*10)
+    print('-'*30)
     for player in players:
         if player.get_state() == 'fold':
-            pass
+            print('player folded')
         else:
             player.display()
-        print('-'*10)
+        print('-'*30)
     print()
-    print()
+    print('*'*30)
 
 
 def game(players, cards):

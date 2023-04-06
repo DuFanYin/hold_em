@@ -1,6 +1,6 @@
 # function to check if any combination exists
 #--------------------------
-from PT import Player, Table
+from player_table import Player, Table
 # ----------------------
 
 def check_combi(table, player):
@@ -13,7 +13,7 @@ def check_combi(table, player):
     def takeSecond(elem):
         return elem[1]
     
-    
+
     all_cards.sort(key=takeSecond)
 
     # remove repeated cards(number)

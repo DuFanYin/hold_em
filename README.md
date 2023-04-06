@@ -10,7 +10,7 @@ ver 1.0
 To be done:
 
     check bet is samller than number of chips
-
+    situation when player have same combi
 
 Done:
 
