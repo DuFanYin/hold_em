@@ -1,6 +1,6 @@
 import random
 from PT import Player, Table
-from check_combi import *
+#from check_combi import *
 
 # cs, ds, hs or ss
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -30,84 +30,50 @@ def shuffle_cards(cards):
 
 shuffled_card = shuffle_cards(cards)
 
-def distribute(stage, cards, table, players):
-    # pre-flop, each player gets two cards
-    def pre_flop(cards, players):
-        for player in players:
-            player.add_card(cards.popitem())
-            player.add_card(cards.popitem())
-
-    # flop, table gets three cards
-    def flop(cards, table):
-        table.add_card(cards.popitem())
-        table.add_card(cards.popitem())
-        table.add_card(cards.popitem())
-
-    # turn, table gets one card
-    def turn(cards, table):
-        table.add_card(cards.popitem())
-
-    # river, table gets three cards
-    def river(cards, table):
-        table.add_card(cards.popitem())
-
-    if stage == 'pre_flop':
-        pre_flop(cards, players)
-    elif stage == 'flop':
-        flop(cards, table)
-    elif stage == 'turn':
-        turn(cards, table)
-    elif stage == 'river':
-        river(cards, table)
-    else:
-        print('wrong stage')
-
 
 T = Table()
 
 play1 = Player('p1', 100)
-play2 = Player('p2', 100)
-play3 = Player('p3', 100)
-play4 = Player('p4', 100)
-players = [play1, play2, play3, play4]
 
-distribute('pre_flop', shuffled_card, T, players)
-distribute('flop', shuffled_card, T, players)
-distribute('turn', shuffled_card, T, players)
-distribute('river', shuffled_card, T, players)
-
-card = check_combi(T, play1)
-def royal_flush(cards):
-        if cards[-1][0][0] != 'A':
-            return False
-        
+test_set = [('T_C', 9), ('J_S', 10), ('J_S', 10), ('J_S', 10), ('K_C', 12), ('K_H', 12), ('A_D', 13)]
 
 
-def four_kind(cards):
-        def check_four(cards):
-            if cards[0][0][0] == cards[1][0][0] == cards[2][0][0] == cards[3][0][0]:
-                return True
-            else:
-                return False
-            
-        flag = False
-        same_four = None
-        for i in range(4):
-            set_of_four = cards[i:i+4]
-            if check_four(set_of_four):
-                flag = True
-                same_four = set_of_four
-        return flag, same_four
+def count_repeat(cards):
+    num_of_repeat = {}
+    for item in cards:
+        number = item[0][0]
+        size = item[1]
+        key = (number, size)
+        if key not in num_of_repeat:
+            num_of_repeat[key] = 1
+        else:
+            num_of_repeat[key] += 1
+ 
+    pair = 0
+    three_kind = 0
+    four_kind = 0
+    for item in num_of_repeat:
+        if num_of_repeat[item] == 2:
+            pair += 1
+        elif num_of_repeat[item] == 3:
+            three_kind += 1
+        elif num_of_repeat[item] == 4:
+            four_kind += 1
 
+    print(num_of_repeat)
 
-test_set = [('5_C', 1), ('5_S', 4), ('5_S', 4), ('5_S', 4), ('7_C', 4), ('8_S', 8), ('9_D', 10)]
-print(test_set)
-result = four_kind(test_set)
-print(result)
+    if four_kind == 1:
+        return 'four_kind'
+    
+    if pair >= 1 or three_kind >= 1:
+        if pair == 1 and three_kind == 1:
+            return 'full_house'
+        else:
+            if three_kind >= 1:
+                return 'three_kind'
+            if pair == 2: 
+                return 'two_pair'
+            else: 
+                return 'one_pair'
 
-
-card_test = ('2_C', 1)
-print(test_set[0][0][0])
-print(test_set[1][0][0])
-print(test_set[2][0][0])
-print(test_set[3][0][0])
+print(count_repeat(test_set))

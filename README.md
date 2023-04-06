@@ -30,6 +30,18 @@ Done:
 
     player now can fold
 
+    combi checking
+        1. Royal flush     # done
+        2. Straight flush 
+        3. Four of a kind  #done
+        4. Full house
+        5. Flush
+        6. Straight        # done
+        7. Three of a kind
+        8. Two pair
+        9. Pair
+        10. High Card
+
 
 potential bug:
     cards might run out if player number > 
