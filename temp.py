@@ -1,7 +1,6 @@
 import random
-from check_combi import check_combi
 
-# clubs, diamonds, hearts or spades
+# cs, ds, hs or ss
 # 2 3 4 5 6 7 8 9 10 J Q K A
 
 cards = { 'A_C' : 13, 'A_D' : 13, 'A_H' : 13, 'A_S' : 13,
@@ -28,43 +27,7 @@ def shuffle_cards(cards):
     return shuffled_card
 
 shuffled_card = shuffle_cards(cards)
-        
 
-def take_card(cards):
-    card = cards.popitem()
-    return card
+item = shuffled_card.popitem()
+print(item)
 
-class table():
-    def __init__(self):
-        self.cards = []
-
-    def add_card(self, card):
-        self.cards.append(card)
-
-
-class Player():
-    def __init__(self, chips):
-        self.chips = chips
-        self.cards = []
-        self.fold = False
-
-    def add_card(self, card):
-        self.cards.append(card)
-
-    def action(self, action_name):
-        if action_name == 'check':
-            pass
-        elif action_name == 'call':
-            pass
-        elif action_name == 'raise':
-            pass
-        else:
-            self.fold = True
-
-
-
-def game_loop():
-    pass
-
-from check_combi import check_combi
-check_combi()
