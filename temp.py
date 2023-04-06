@@ -81,31 +81,33 @@ def royal_flush(cards):
         if cards[-1][0][0] != 'A':
             return False
         
-set_of_five = card[2:2+5]
 
-print(card)
-print(set_of_five)
 
-def straight(cards):
-        def check_straight(set_of_five):
-            is_straight = True
-            for i in range(1,5):
-                if set_of_five[i][1] - 1 != set_of_five[i-1][1]:
-                    is_straight = False
-                    break
-            return is_straight
-
+def four_kind(cards):
+        def check_four(cards):
+            if cards[0][0][0] == cards[1][0][0] == cards[2][0][0] == cards[3][0][0]:
+                return True
+            else:
+                return False
+            
         flag = False
-        straight_set = None
-        for i in range(3):
-            set_of_five = cards[i:i+5]
-            if check_straight(set_of_five):
+        same_four = None
+        for i in range(4):
+            set_of_four = cards[i:i+4]
+            if check_four(set_of_four):
                 flag = True
-                straight_set = set_of_five
+                same_four = set_of_four
+        return flag, same_four
 
-        return flag, straight_set
 
-
-test_set = [('2_C', 1), ('5_S', 4), ('6_S', 5), ('7_S', 6), ('8_C', 7), ('9_S', 8), ('J_D', 10)]
-result = straight(test_set)
+test_set = [('5_C', 1), ('5_S', 4), ('5_S', 4), ('5_S', 4), ('7_C', 4), ('8_S', 8), ('9_D', 10)]
+print(test_set)
+result = four_kind(test_set)
 print(result)
+
+
+card_test = ('2_C', 1)
+print(test_set[0][0][0])
+print(test_set[1][0][0])
+print(test_set[2][0][0])
+print(test_set[3][0][0])

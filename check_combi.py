@@ -31,6 +31,7 @@ def check_combi(table, player):
         else:
             return True
         
+
     def straight(cards):
         def check_straight(set_of_five):
             is_straight = True
@@ -50,7 +51,23 @@ def check_combi(table, player):
 
         return flag, straight_set
             
+
+    def four_kind(cards):
+        def check_four(cards):
+            if cards[0][0][0] == cards[1][0][0] == cards[2][0][0] == cards[3][0][0]:
+                return True
+            else:
+                return False
             
+        flag = False
+        same_four = None
+        for i in range(4):
+            set_of_four = cards[i:i+4]
+            if check_four(set_of_four):
+                flag = True
+                same_four = set_of_four
+        return flag, same_four
+
 
 
 
