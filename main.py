@@ -76,27 +76,54 @@ def game_stage(stage, cards, table, players, pot):
     
 
     number_to_call = 0
+    raised = False
+    previous_action = None
+
     distribute(stage, cards, table, players)
     show_board(stage, pot, table, players, winners = None)
+
     for player in players:
         if player.get_state() == 'fold':
             pass
         else:
-            print(player.get_name())
-            print('you have chips: '+ str(player.get_chips()))
-            action = input('what action to take? (check, call, raise, fold)' +'\n')
-            if action == 'check':
-                player.action_handle_check()
-            elif action == 'call':
-                player.action_handle_call(number_to_call)
-            elif action == 'raise':
-                number_to_raise = int(input('how much whould you like to raise?' + '\n'))
-                player.action_handle_raise(number_to_raise)
-                number_to_call = number_to_raise
-            elif action == 'fold':
-                player.action_handle_fold()
-            else:
-                print('wrong action name')
+            your_turn = True
+            while your_turn:
+                print(player.get_name())
+                print('you have chips: '+ str(player.get_chips()))
+                print('number to call:  ' + str(number_to_call))
+                action = input('action to take?  (check, call, raise, fold)' +'\n')
+                if action == 'check':
+                    if previous_action == None or previous_action == 'check':
+                        player.action_handle_check()
+                        previous_action = 'check'
+                        your_turn = False
+                    else:
+                        print('ERROR: you can not check')
+
+                elif action == 'call':
+                    if raised:
+                        player.action_handle_call(number_to_call)
+                        previous_action = 'call'
+                        your_turn = False
+                    else:
+                        print('ERROR: you cant call, no bet yet')
+
+                elif action == 'raise':
+                    number_to_raise = int(input('how much whould you like to raise?' + '\n'))
+                    if number_to_raise > number_to_call:
+                        player.action_handle_raise(number_to_raise)
+                        number_to_call = number_to_raise
+                        raised = True
+                        your_turn = False
+                    else:
+                        print('ERROR: number is smaller than number to be called')
+                        
+                elif action == 'fold':
+                    player.action_handle_fold()
+                    your_turn = False
+                else:
+                    print('ERROR: wrong action name')
+        print('-'*20)
         #show_board(stage, pot, table, players)
 
 # display the board
@@ -147,11 +174,11 @@ def game(players, cards):
             remain_players.append(player)
     print(remain_players)
 
-    
+
     # calculate winner, give out prize
     winners, winning_combi = check_winner(table, remain_players)
     winner_names = []
-    for player in winners:
+    for item in winners:
         winner_names.append(player.get_name())
     prize = pot/len(winners)
     for player in winners:

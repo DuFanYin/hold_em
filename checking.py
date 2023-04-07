@@ -66,7 +66,7 @@ def check_combi(table, player):
             elif item == 'H': H += 1
             elif item == 'D': D += 1
             else: C += 1
-        if C >= 4 or S >= 4 or H >= 4 or D >= 4:
+        if C >= 5 or S >= 5 or H >= 5 or D >= 5:
             return (True, None)
         else:
             return (False, None)
@@ -229,10 +229,17 @@ def check_winner(table, players):
     else:
         pass
 
-    return winner, winning_combi
-#-----------------------------
+    winners = []
+    for item in winner:
+        winners.append(item[0])
+
+    return winners, winning_combi
 
 
+# test code seciton
+#---------------------------------------------------------
+
+'''
 player1 = Player('player 1', 100)
 player2 = Player('player 2', 100)
 player3 = Player('player 3', 100)
@@ -259,7 +266,7 @@ players = [player1, player2, player3]
 print(check_winner(table, players))
 
 
-'''
+
 10. Royal flush     nil
 9. Straight flush     take top card
 8. Four of a kind     take top card
@@ -271,3 +278,5 @@ print(check_winner(table, players))
 2. Pair               take one card
 1. High Card          take one card
 '''
+
+#---------------------------------------------------------

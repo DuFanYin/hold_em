@@ -1,18 +1,16 @@
 ver 1.0
 
-    multiple players
+    features:
 
-    can see each others cards
+        multiple players
 
-    play one hand
+        play one hand
 
+    to be fixed:
 
-To be done:
+        can see each others cards
 
-    check bet is samller than number of chips
-    situation when player have same combi
-
-Done:
+Finished items:
 
     1. able to shuffle cards
     2. able to give out cards in four stages
@@ -21,7 +19,7 @@ Done:
         players card
         money in the pot
         bet placed by players
-    5.  able to check if any combination exist
+    5. able to check highest combination for one player
     6. after place bet, bet goes into pot
     7. player now can fold 
     8. player now can take different actions (no restriction)
@@ -32,6 +30,9 @@ Done:
     13. display winner and winning after game
     14. calculate winners
     15. remove folded player when finding winner
+    16. check_winner() now consider the case when tie occurs
+    17. number_to_call is displayed before player make aciton
+    18. now player action is restricted, options depends on previous player's action
 
 
 functions:
