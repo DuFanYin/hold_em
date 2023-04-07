@@ -34,7 +34,44 @@ Done:
     15. remove folded player when finding winner
 
 
+functions:
 
-potential bug:
-    cards might run out if player number > 
+    shuffle_cards(cards)
+        helper function
+        shuffle the cards at the start of one hand
+
+    distribute(stage, cards, table, players)
+        give out cards at each game stage
+        action depends on the stage
+
+    collect_bet(players)
+        helper function
+        collect bets placed by player and put it into pot
+ 
+    reset(players)
+        helper function
+        reset player state to waiting action after each stage
+        ingnore players who folded (class method)
+
+    game_stage(stage, cards, table, players, pot)
+        control game flow in each game stage
+
+    show_board(stage, pot, table, players, winners = None, winning_combi = None)
+        show the board
+        ingnore players who folded
+
+    game(players, cards)
+        excute four stages of game
+        collect bet after each stage
+        find winner and display
+
+    check_combi(table, players)
+        check the highest combi for one player (7 cards)
+        return combi name and one tuple to make comaprison when tie
+
+    check_winner(table, player)
+        find the winner, who has highest combi
+        resolve where players have same combi
+        can have multiple winners
+ 
 

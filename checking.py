@@ -133,22 +133,23 @@ def check_combi(table, player):
                     return (3, (first_pair_rank, second_pair_rank))
                 else: 
                     return (2, first_pair_rank)
-
+                
+        return (0, None)
 
 
     top_combi_card_rank = (0, None)
 
-    is_straight = straight(all_cards)
+    is_straight = straight(all_cards) 
     is_flush = flush(all_cards)
 
     if is_flush[0] or is_straight[0]:
         if is_straight[0] and is_flush[0]:
             if all_cards[-1][1] == 13:
-                top_combi_card_rank = (10,None) # royal flush
+                top_combi_card_rank = (10, None) # royal flush
             else:
                 top_combi_card_rank = (9, is_straight[1]) # straight flush
         else:
-            if is_flush: 
+            if is_flush[0]: 
                 top_combi_card_rank = (6, None) # flush
             else: 
                 top_combi_card_rank = (5, is_straight[1])  # straight
@@ -158,22 +159,52 @@ def check_combi(table, player):
     if repeat_result[0] > top_combi_card_rank[0]:
         top_combi_card_rank = repeat_result
 
+    if top_combi_card_rank[0] == 0:
+        top_combi_card_rank = (1, all_cards[-1][1])
+
     return top_combi_card_rank
 
 
 
 def check_winner(table, players):
-    current_top_combi = 0
+    players_combi = []
     winning_combi = ''
     winner = []
+
     for player in  players:
-        top_combi = check_combi(table, player)
-        if top_combi == current_top_combi:
-            winner.append(player)
-        elif top_combi > current_top_combi:
-            current_top_combi = top_combi
-            winner = []
-            winner.append(player)
+        # a list of player object, players name, and result of check_combi
+        players_combi.append((player, player.get_name(), check_combi(table, player)))
+
+
+
+    def take_combi_rank(elem):
+        return elem[2][0]
+    
+    # rank based on combi
+    players_combi.sort(key=take_combi_rank)
+    players_combi.reverse()
+
+    
+
+    top_combi = players_combi[0][2][0]
+    player_with_top_combi = []             # list of player who have top combination
+    for item in players_combi:
+        if item[2][0] == top_combi:
+            player_with_top_combi.append(item)
+            
+    if len(player_with_top_combi) == 1:     # one player who has top combi
+        winner.append(player_with_top_combi[0])
+    else:                                  # there s a tie        item[2][1] parameter to break tie
+        winner.append(player_with_top_combi[0])
+        for i in range(1, len(player_with_top_combi)):
+            parameter = player_with_top_combi[i][2][1]
+            if parameter > player_with_top_combi[0][2][1]:
+                winner.clear()
+                winner.append(player_with_top_combi[i])
+            elif parameter == player_with_top_combi[0][2][1]:
+                winner.append(player_with_top_combi[i])
+            else:
+                pass
 
     if top_combi == 10: 
         winning_combi = 'royal flush'
@@ -201,25 +232,34 @@ def check_winner(table, players):
     return winner, winning_combi
 #-----------------------------
 
-'''
-player1 = Player('name', 100)
+
+player1 = Player('player 1', 100)
+player2 = Player('player 2', 100)
+player3 = Player('player 3', 100)
 table = Table()
 
-player1.add_card(('3_D',2))
-player1.add_card(('8_C',7))
+player1.add_card(('A_D',13))
+player1.add_card(('A_C',13))
 
-table.add_card(('7_D',6))
-table.add_card(('4_S',3))
+player2.add_card(('9_D',8))
+player2.add_card(('3_C',2))
+
+player3.add_card(('A_D',13))
+player3.add_card(('A_C',13))
+
 table.add_card(('8_D',7))
-table.add_card(('9_S',8))
-table.add_card(('6_S',5))
+table.add_card(('4_S',3))
+table.add_card(('5_H',4))
+table.add_card(('J_D',10))
+table.add_card(('K_S',12))
+
+players = [player1, player2, player3]
 
 
-num = check_combi(table, player1)
-print(num)
+print(check_winner(table, players))
 
 
-
+'''
 10. Royal flush     nil
 9. Straight flush     take top card
 8. Four of a kind     take top card

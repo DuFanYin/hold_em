@@ -1,3 +1,5 @@
+# class definition
+
 class Player:
     def __init__(self, name, chips):
         self.name = name

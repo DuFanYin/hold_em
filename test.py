@@ -194,4 +194,36 @@ play2 = Player('b', 100)
 play3 = Player('c', 100)
 players = [play1, play2, play3]
 
-game(players, cards)
+#game(players, cards)
+
+
+def flush(cards):
+        shapes = []
+        for item in cards:
+            shapes.append(item[0][-1])
+        S = 0
+        C = 0
+        D = 0
+        H = 0
+        for item in shapes:
+            if item == 'S': S += 1
+            elif item == 'H': H += 1
+            elif item == 'D': D += 1
+            else: C += 1
+        if C >= 4 or S >= 4 or H >= 4 or D >= 4:
+            return (True, None)
+        else:
+            return (False, None)
+        
+
+cards_test = [('8_D',7), ('6_C',5), ('7_D',6), ('4_S',3), ('5_H',4), ('9_D',8), ('K_S',12) ]
+player3.add_card(('8_D',7))
+player3.add_card(('6_C',5))
+
+table.add_card(('7_D',6))
+table.add_card(('4_S',3))
+table.add_card(('5_H',4))
+table.add_card(('9_D',8))
+table.add_card(('K_S',12))
+
+print(check_combi(table, player3))
