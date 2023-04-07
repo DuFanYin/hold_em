@@ -29,6 +29,9 @@ Done:
     10. reset player state, bet placed after every stage
     11. player who folded exclude from following stages
     12. deduct chips after placing bet (no restriction)
+    13. display winner and winning after game
+    14. calculate winners
+    15. remove folded player when finding winner
 
 
 

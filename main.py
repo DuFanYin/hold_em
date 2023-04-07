@@ -73,6 +73,8 @@ def reset(players):
 
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot):
+    
+
     number_to_call = 0
     distribute(stage, cards, table, players)
     show_board(stage, pot, table, players, winners = None)
@@ -175,6 +177,12 @@ def game(players, cards):
         pot += collect_bet(players)
         reset(players)
 
+
+    # remove players who folded
+    remain_players = []
+    for player in players:
+        if player.get_state() != 'fold':
+            remain_players.append(player)
 
     # calculate winner, give out prize
     winners, winning_combi = check_winner(table, players)

@@ -122,6 +122,7 @@ def check_combi(table, player):
                 top_combi = 6 # flush
             else: top_combi = 5  # straight
 
+
     repeat_result = count_repeat(all_cards)
     temp_top_combi = 0
     if repeat_result == 'four_kind':
