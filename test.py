@@ -195,4 +195,3 @@ play3 = Player('c', 100)
 players = [play1, play2, play3]
 
 game(players, cards)
-

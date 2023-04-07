@@ -1,4 +1,5 @@
 # function to check if any combination exists
+# function to check whose the winner
 #--------------------------
 from player_table import Player, Table
 # ----------------------
@@ -38,18 +39,18 @@ def check_combi(table, player):
 
         cards = remove_same(cards)
         flag = False
-        straight_set = None
+        highest_card_rank = None
         number_of_card = len(cards)
         if number_of_card < 5:
-            return flag, straight_set
+            return (flag, highest_card_rank)
         else:
             for i in range(number_of_card - 4):
                 set_of_five = cards[i:i+5]
                 if check_straight(set_of_five):
                     flag = True
-                    straight_set = set_of_five
+                    highest_card_rank = set_of_five[-1][1]
 
-        return flag, straight_set
+        return (flag, highest_card_rank)
             
 
     def flush(cards):
@@ -66,9 +67,9 @@ def check_combi(table, player):
             elif item == 'D': D += 1
             else: C += 1
         if C >= 4 or S >= 4 or H >= 4 or D >= 4:
-            return True
+            return (True, None)
         else:
-            return False
+            return (False, None)
 
 
     def count_repeat(cards):
@@ -83,64 +84,81 @@ def check_combi(table, player):
                 num_of_repeat[key] += 1
  
         pair = 0
+        first_pair_rank = None
+        second_pair_rank = None
+
         three_kind = 0
+        three_kind_rank = 0
+
         four_kind = 0
+        four_kind_rank = 0
         for item in num_of_repeat:
             if num_of_repeat[item] == 2:
                 pair += 1
+                if pair == 1:     # first pair found
+                    first_pair_rank = item[1]
+                elif pair == 2:   # second pair found
+                    if item[1] > first_pair_rank:
+                        second_pair_rank = first_pair_rank
+                        first_pair_rank = item[1]
+                    else:
+                        second_pair_rank = item[1]
+                else:          # third pair found
+                    if item[1] > first_pair_rank:
+                        second_pair_rank = first_pair_rank
+                        first_pair_rank = item[1]
+                    elif item[1] > second_pair_rank:
+                        second_pair_rank = item[1]
+                    else:
+                        pass
+                    
             elif num_of_repeat[item] == 3:
                 three_kind += 1
+                if item[1] > three_kind_rank:
+                    three_kind_rank = item[1]    # always take higher set of three
             elif num_of_repeat[item] == 4:
                 four_kind += 1
+                four_kind_rank = item[1]        # note dow which set of four
 
         if four_kind == 1:
-            return 'four_kind'
+            return (8, four_kind_rank)      # four of a kind
     
         if pair >= 1 or three_kind >= 1:
             if pair == 1 and three_kind == 1:
-                return 'full_house'
+                return (7, (three_kind_rank, first_pair_rank)) # full house
             else:
                 if three_kind >= 1:
-                    return 'three_kind'
+                    return (4, three_kind_rank)          # three of a kind
                 elif pair == 2: 
-                    return 'two_pair'
+                    return (3, (first_pair_rank, second_pair_rank))
                 else: 
-                    return 'one_pair'
+                    return (2, first_pair_rank)
 
-    top_combi = 0
+
+
+    top_combi_card_rank = (0, None)
+
     is_straight = straight(all_cards)
     is_flush = flush(all_cards)
 
-    if is_flush or is_straight[0]:
-        if is_straight[0] and is_flush:
+    if is_flush[0] or is_straight[0]:
+        if is_straight[0] and is_flush[0]:
             if all_cards[-1][1] == 13:
-                top_combi = 10 # royal flush
+                top_combi_card_rank = (10,None) # royal flush
             else:
-                top_combi = 9 # straight flush
+                top_combi_card_rank = (9, is_straight[1]) # straight flush
         else:
             if is_flush: 
-                top_combi = 6 # flush
-            else: top_combi = 5  # straight
+                top_combi_card_rank = (6, None) # flush
+            else: 
+                top_combi_card_rank = (5, is_straight[1])  # straight
 
 
     repeat_result = count_repeat(all_cards)
-    temp_top_combi = 0
-    if repeat_result == 'four_kind':
-        temp_top_combi = 8     
-    elif repeat_result == 'full_house':
-        temp_top_combi = 7
-    elif repeat_result == 'three_kind':
-        temp_top_combi = 4
-    elif repeat_result == 'two_pair':
-        temp_top_combi = 3
-    elif repeat_result == 'one_pair':
-        temp_top_combi = 2
-    else:
-        temp_top_combi = 1
+    if repeat_result[0] > top_combi_card_rank[0]:
+        top_combi_card_rank = repeat_result
 
-    if temp_top_combi > top_combi:
-        top_combi = temp_top_combi
-    return top_combi
+    return top_combi_card_rank
 
 
 

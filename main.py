@@ -146,6 +146,8 @@ def game(players, cards):
         if player.get_state() != 'fold':
             remain_players.append(player)
     print(remain_players)
+
+    
     # calculate winner, give out prize
     winners, winning_combi = check_winner(table, remain_players)
     winner_names = []
