@@ -73,8 +73,6 @@ def reset(players):
 
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot):
-    
-
     number_to_call = 0
     distribute(stage, cards, table, players)
     show_board(stage, pot, table, players, winners = None)
@@ -98,6 +96,44 @@ def game_stage(stage, cards, table, players, pot):
             else:
                 print('wrong action name')
         #show_board(stage, pot, table, players)
+
+def check_winner(table, players):
+    current_top_combi = 0
+    winning_combi = ''
+    winner = []
+    for player in  players:
+        top_combi = check_combi(table, player)
+        if top_combi == current_top_combi:
+            winner.append(player)
+        elif top_combi > current_top_combi:
+            current_top_combi = top_combi
+            winner = []
+            winner.append(player)
+
+    if top_combi == 10: 
+        winning_combi = 'royal flush'
+    elif top_combi == 9:
+        winning_combi = 'straight flush'
+    elif top_combi == 8:
+        winning_combi = 'four of a kind'
+    elif top_combi == 7:
+        winning_combi = 'full house'
+    elif top_combi == 6:
+        winning_combi = 'flush'
+    elif top_combi == 5:
+        winning_combi = 'straight'
+    elif top_combi == 4:
+        winning_combi = 'three of a kind'
+    elif top_combi == 3:
+        winning_combi = 'two pair'
+    elif top_combi == 2:
+        winning_combi = 'one pair'
+    elif top_combi == 1:
+        winning_combi = 'high card'
+    else:
+        pass
+
+    return winner, winning_combi
 
 # display the board
 def show_board(stage, pot, table, players, winners = None, winning_combi = None):
@@ -140,21 +176,14 @@ def game(players, cards):
         reset(players)
 
 
-    # remove players who folded
-    remain_players = []
-    for player in players:
-        if player.get_state() != 'fold':
-            remain_players.append(player)
-    print(remain_players)
     # calculate winner, give out prize
-    winners, winning_combi = check_winner(table, remain_players)
+    winners, winning_combi = check_winner(table, players)
     winner_names = []
     for player in winners:
         winner_names.append(player.get_name())
     prize = pot/len(winners)
     for player in winners:
         player.add_chips(prize)
-    pot = 0
 
     show_board('result', pot, table, players, winner_names, winning_combi)
 

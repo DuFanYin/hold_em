@@ -140,10 +140,47 @@ def check_combi(table, player):
 
     if temp_top_combi > top_combi:
         top_combi = temp_top_combi
-    print(top_combi)
     return top_combi
 
 
+
+def check_winner(table, players):
+    current_top_combi = 0
+    winning_combi = ''
+    winner = []
+    for player in  players:
+        top_combi = check_combi(table, player)
+        if top_combi == current_top_combi:
+            winner.append(player)
+        elif top_combi > current_top_combi:
+            current_top_combi = top_combi
+            winner = []
+            winner.append(player)
+
+    if top_combi == 10: 
+        winning_combi = 'royal flush'
+    elif top_combi == 9:
+        winning_combi = 'straight flush'
+    elif top_combi == 8:
+        winning_combi = 'four of a kind'
+    elif top_combi == 7:
+        winning_combi = 'full house'
+    elif top_combi == 6:
+        winning_combi = 'flush'
+    elif top_combi == 5:
+        winning_combi = 'straight'
+    elif top_combi == 4:
+        winning_combi = 'three of a kind'
+    elif top_combi == 3:
+        winning_combi = 'two pair'
+    elif top_combi == 2:
+        winning_combi = 'one pair'
+    elif top_combi == 1:
+        winning_combi = 'high card'
+    else:
+        pass
+
+    return winner, winning_combi
 #-----------------------------
 
 '''
@@ -165,14 +202,14 @@ print(num)
 
 
 
-10. Royal flush     # done
-9. Straight flush  #done
-8. Four of a kind  #done
-7. Full house
-6. Flush           # done
-5. Straight        # done
-4. Three of a kind
-3. Two pair
-2. Pair
-1. High Card
+10. Royal flush     nil
+9. Straight flush     take top card
+8. Four of a kind     take top card
+7. Full house         take two card
+6. Flush              same
+5. Straight           take top card
+4. Three of a kind    take one card
+3. Two pair           take two card
+2. Pair               take one card
+1. High Card          take one card
 '''
