@@ -102,7 +102,7 @@ def check_combi(table, player):
             else:
                 if three_kind >= 1:
                     return 'three_kind'
-                if pair == 2: 
+                elif pair == 2: 
                     return 'two_pair'
                 else: 
                     return 'one_pair'
@@ -132,41 +132,38 @@ def check_combi(table, player):
         temp_top_combi = 4
     elif repeat_result == 'two_pair':
         temp_top_combi = 3
-    elif temp_top_combi == 'one_pair':
+    elif repeat_result == 'one_pair':
         temp_top_combi = 2
     else:
         temp_top_combi = 1
 
     if temp_top_combi > top_combi:
         top_combi = temp_top_combi
-
+    print(top_combi)
     return top_combi
 
 
 #-----------------------------
 
 '''
-test code
-
-
 player1 = Player('name', 100)
 table = Table()
 
-player1.add_card(('A_H',13))
-player1.add_card(('2_D',1))
+player1.add_card(('3_D',2))
+player1.add_card(('8_C',7))
 
 table.add_card(('7_D',6))
 table.add_card(('4_S',3))
-table.add_card(('7_D',6))
-table.add_card(('6_H',5))
-table.add_card(('7_H',6))
+table.add_card(('8_D',7))
+table.add_card(('9_S',8))
+table.add_card(('6_S',5))
 
 
 num = check_combi(table, player1)
 print(num)
-'''
 
-'''
+
+
 10. Royal flush     # done
 9. Straight flush  #done
 8. Four of a kind  #done

@@ -75,7 +75,7 @@ def reset(players):
 def game_stage(stage, cards, table, players, pot):
     number_to_call = 0
     distribute(stage, cards, table, players)
-    show_board(stage, pot, table, players)
+    show_board(stage, pot, table, players, winners = None)
     for player in players:
         if player.get_state() == 'fold':
             pass
@@ -99,6 +99,7 @@ def game_stage(stage, cards, table, players, pot):
 
 def check_winner(table, players):
     current_top_combi = 0
+    winning_combi = ''
     winner = []
     for player in  players:
         top_combi = check_combi(table, player)
@@ -109,11 +110,34 @@ def check_winner(table, players):
             winner = []
             winner.append(player)
 
-    return winner
+    if top_combi == 10: 
+        winning_combi = 'royal flush'
+    elif top_combi == 9:
+        winning_combi = 'straight flush'
+    elif top_combi == 8:
+        winning_combi = 'four of a kind'
+    elif top_combi == 7:
+        winning_combi = 'full house'
+    elif top_combi == 6:
+        winning_combi = 'flush'
+    elif top_combi == 5:
+        winning_combi = 'straight'
+    elif top_combi == 4:
+        winning_combi = 'three of a kind'
+    elif top_combi == 3:
+        winning_combi = 'two pair'
+    elif top_combi == 2:
+        winning_combi = 'one pair'
+    elif top_combi == 1:
+        winning_combi = 'high card'
+    else:
+        pass
+
+    return winner, winning_combi
 
 # display the board
-def show_board(stage, pot, table, players):
-    print('*'*30)
+def show_board(stage, pot, table, players, winners = None, winning_combi = None):
+    print('*'*50)
     print()
     print('current stage: '+stage)
     print('current pot:  ' + str(pot))
@@ -121,14 +145,22 @@ def show_board(stage, pot, table, players):
     table.display_cards()
     print()
     print('-'*30)
+
     for player in players:
         if player.get_state() == 'fold':
             print('player folded')
         else:
             player.display()
         print('-'*30)
-    print()
-    print('*'*30)
+
+    if winners == None:
+        print()
+    else:
+        print('winners are: ')
+        print(winners)
+        print(winning_combi)
+
+    print('*'*50)
 
 # start one hand, four stages
 def game(players, cards):
@@ -145,10 +177,16 @@ def game(players, cards):
 
 
     # calculate winner, give out prize
-    winners = check_winner(table, players)
+    winners, winning_combi = check_winner(table, players)
+    winner_names = []
+    for player in winners:
+        winner_names.append(player.get_name())
     prize = pot/len(winners)
     for player in winners:
         player.add_chips(prize)
+    pot = 0
+
+    show_board('result', pot, table, players, winner_names, winning_combi)
 
 
 

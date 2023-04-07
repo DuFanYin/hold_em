@@ -27,10 +27,6 @@ class Player:
     def add_card(self, card):
         self.cards.append(card)
 
-    def place_bet(self, bet):
-        self.chips -= bet
-        self.buffer += bet
-
     def take_buffer(self):
         bet = self.buffer
         self.buffer = 0
@@ -44,7 +40,7 @@ class Player:
         for item in self.cards:
             print(item[0], end = ' ')
         print()
-        print('bet placed:  '+str(self.buffer))
+        print('number of chips: ' + str(self.chips) + '   bet placed:  '+str(self.buffer))
         print(self.state)
 
     def action_handle_check(self):
