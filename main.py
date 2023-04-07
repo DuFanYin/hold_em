@@ -1,5 +1,6 @@
 import random
 from player_table import Player, Table
+from check_combi import *
 
 # clubs, diamonds, hearts or spades
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -96,7 +97,19 @@ def game_stage(stage, cards, table, players, pot):
                 print('wrong action name')
         #show_board(stage, pot, table, players)
 
+def check_winner(table, players):
+    current_top_combi = 0
+    winner = []
+    for player in  players:
+        top_combi = check_combi(table, player)
+        if top_combi == current_top_combi:
+            winner.append(player)
+        elif top_combi > current_top_combi:
+            current_top_combi = top_combi
+            winner = []
+            winner.append(player)
 
+    return winner
 
 # display the board
 def show_board(stage, pot, table, players):
@@ -117,7 +130,7 @@ def show_board(stage, pot, table, players):
     print()
     print('*'*30)
 
-
+# start one hand, four stages
 def game(players, cards):
     shuffled_card = shuffle_cards(cards)
     pot = 0

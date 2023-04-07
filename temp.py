@@ -1,6 +1,6 @@
 import random
 from player_table import Player, Table
-#from check_combi import *
+from check_combi import *
 
 # cs, ds, hs or ss
 # 2 3 4 5 6 7 8 9 10 J Q K A
@@ -31,49 +31,45 @@ def shuffle_cards(cards):
 shuffled_card = shuffle_cards(cards)
 
 
-T = Table()
 
-play1 = Player('p1', 100)
 
 test_set = [('T_C', 9), ('J_S', 10), ('J_S', 10), ('J_S', 10), ('K_C', 12), ('K_H', 12), ('A_D', 13)]
 
 
-def count_repeat(cards):
-    num_of_repeat = {}
-    for item in cards:
-        number = item[0][0]
-        size = item[1]
-        key = (number, size)
-        if key not in num_of_repeat:
-            num_of_repeat[key] = 1
-        else:
-            num_of_repeat[key] += 1
- 
-    pair = 0
-    three_kind = 0
-    four_kind = 0
-    for item in num_of_repeat:
-        if num_of_repeat[item] == 2:
-            pair += 1
-        elif num_of_repeat[item] == 3:
-            three_kind += 1
-        elif num_of_repeat[item] == 4:
-            four_kind += 1
 
-    print(num_of_repeat)
+player1 = Player('player1', 100)
+player2 = Player('player2', 100)
+table = Table()
 
-    if four_kind == 1:
-        return 'four_kind'
-    
-    if pair >= 1 or three_kind >= 1:
-        if pair == 1 and three_kind == 1:
-            return 'full_house'
-        else:
-            if three_kind >= 1:
-                return 'three_kind'
-            if pair == 2: 
-                return 'two_pair'
-            else: 
-                return 'one_pair'
+player1.add_card(('7_H',6))
+player1.add_card(('2_D',1))
 
-print(count_repeat(test_set))
+player2.add_card(('A_H',13))
+player2.add_card(('2_D',1))
+
+table.add_card(('7_D',6))
+table.add_card(('4_S',3))
+table.add_card(('K_D',12))
+table.add_card(('6_H',5))
+table.add_card(('7_H',6))
+players = [player1, player2]
+
+
+
+def check_winner(table, players):
+    current_top_combi = 0
+    winner = []
+    for player in  players:
+        top_combi = check_combi(table, player)
+        if top_combi == current_top_combi:
+            winner.append(player)
+        elif top_combi > current_top_combi:
+            current_top_combi = top_combi
+            winner = []
+            winner.append(player)
+
+    return winner
+
+winners = check_winner(table, players)
+print(winners)
+print(len(winners))

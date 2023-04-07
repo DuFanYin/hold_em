@@ -35,6 +35,9 @@ class Player:
         bet = self.buffer
         self.buffer = 0
         return bet
+    
+    def add_chips(self, winning_chips):
+        self.chips += winning_chips
 
     def display(self):
         print(self.name + ', your cards are: ')
