@@ -144,7 +144,12 @@ def game(players, cards):
         reset(players)
 
 
-    # calculate winner
+    # calculate winner, give out prize
+    winners = check_winner(table, players)
+    prize = pot/len(winners)
+    for player in winners:
+        player.add_chips(prize)
+
 
 
 play1 = Player('a', 100)
