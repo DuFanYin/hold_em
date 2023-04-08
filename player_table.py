@@ -41,10 +41,11 @@ class Player:
         self.chips += winning_chips
 
     def display(self):
-        print(self.name + ', your cards are: ')
+        cards = ''
         for item in self.cards:
-            print(item[0], end = ' ')
-        print()
+            cards += item[0]
+            cards += ' '
+        print(self.name + ', your cards are: ' + cards)
         print('number of chips: ' + str(self.chips) + '   bet placed:  '+str(self.buffer))
         print(self.state)
 

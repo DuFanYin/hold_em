@@ -1,9 +1,10 @@
 # function to check if any combination exists
 # function to check whose the winner
-#--------------------------
-from player_table import Player, Table
-# ----------------------
 
+
+# this funtion return a tuple
+# first element being the highest combi exist 
+# second element contains the card or cards needed to break a tie(same highest combi)
 def check_combi(table, player):
     # getting cards from the player and table
     table_cards = table.get_cards()
@@ -13,11 +14,10 @@ def check_combi(table, player):
     #sort cards
     def takeSecond(elem):
         return elem[1]
-    
-
     all_cards.sort(key=takeSecond)
 
-    # remove repeated cards(number)
+
+    # helper function to remove repeated cards(number)
     def remove_same(cards):
         new_set = []
         exist = []
@@ -28,7 +28,9 @@ def check_combi(table, player):
         return new_set
 
 
+    # check if straight exist among all 7 cards
     def straight(cards):
+        #helper function to check if five cards are straight
         def check_straight(set_of_five):
             is_straight = True
             for i in range(1,5):
@@ -38,21 +40,21 @@ def check_combi(table, player):
             return is_straight
 
         cards = remove_same(cards)
-        flag = False
+        is_straight = False
         highest_card_rank = None
         number_of_card = len(cards)
-        if number_of_card < 5:
-            return (flag, highest_card_rank)
+        if number_of_card < 5:   # less than 5 unrepeated cards
+            return (is_straight, highest_card_rank)
         else:
             for i in range(number_of_card - 4):
                 set_of_five = cards[i:i+5]
                 if check_straight(set_of_five):
-                    flag = True
+                    is_straight = True
                     highest_card_rank = set_of_five[-1][1]
 
-        return (flag, highest_card_rank)
+        return (is_straight, highest_card_rank)
             
-
+    # check if flush exist among all 7 cards
     def flush(cards):
         shapes = []
         for item in cards:
@@ -71,7 +73,7 @@ def check_combi(table, player):
         else:
             return (False, None)
 
-
+    # count the repeated cards then check combination
     def count_repeat(cards):
         num_of_repeat = {}
         for item in cards:
@@ -84,16 +86,18 @@ def check_combi(table, player):
                 num_of_repeat[key] += 1
  
         pair = 0
-        first_pair_rank = None
-        second_pair_rank = None
+        first_pair_rank = None   # first pair always have biggest pair
+        second_pair_rank = None  # second pair always second biggest pair, even if total 3 pairs
 
         three_kind = 0
         three_kind_rank = 0
 
         four_kind = 0
         four_kind_rank = 0
+
         for item in num_of_repeat:
-            if num_of_repeat[item] == 2:
+
+            if num_of_repeat[item] == 2:   # handle when there is a pair
                 pair += 1
                 if pair == 1:     # first pair found
                     first_pair_rank = item[1]
@@ -115,7 +119,8 @@ def check_combi(table, player):
             elif num_of_repeat[item] == 3:
                 three_kind += 1
                 if item[1] > three_kind_rank:
-                    three_kind_rank = item[1]    # always take higher set of three
+                    three_kind_rank = item[1]    # might have 2 three of a kind, always take higher set of three
+            
             elif num_of_repeat[item] == 4:
                 four_kind += 1
                 four_kind_rank = item[1]        # note dow which set of four
@@ -142,6 +147,7 @@ def check_combi(table, player):
     is_straight = straight(all_cards) 
     is_flush = flush(all_cards)
 
+    # this section to check (straight, flush, straight flush, royal flush)
     if is_flush[0] or is_straight[0]:
         if is_straight[0] and is_flush[0]:
             if all_cards[-1][1] == 13:
@@ -154,29 +160,38 @@ def check_combi(table, player):
             else: 
                 top_combi_card_rank = (5, is_straight[1])  # straight
 
-
+    # this line to check (one pair, two pair, three of a kind, full house, four of a kind)
     repeat_result = count_repeat(all_cards)
+
+    # whichever have a higher combi
     if repeat_result[0] > top_combi_card_rank[0]:
         top_combi_card_rank = repeat_result
 
+    # if no combi exist, set outcome to high card, and take highest card
     if top_combi_card_rank[0] == 0:
         top_combi_card_rank = (1, all_cards[-1][1])
 
     return top_combi_card_rank
 
 
-
+# find the winner among all players
 def check_winner(table, players):
     players_combi = []
     winning_combi = ''
     winner = []
 
-    for player in  players:
-        # a list of player object, players name, and result of check_combi
+    # remove players who folded
+    remain_players = []
+    for player in players:
+        if player.get_state() != 'fold':
+            remain_players.append(player)
+
+    for player in  remain_players:
+        # a list of [player object, players name, and result of check_combi]
         players_combi.append((player, player.get_name(), check_combi(table, player)))
 
 
-
+    # helper function to rank players
     def take_combi_rank(elem):
         return elem[2][0]
     
@@ -185,16 +200,16 @@ def check_winner(table, players):
     players_combi.reverse()
 
     
-
-    top_combi = players_combi[0][2][0]
+    top_combi = players_combi[0][2][0]     # after ranking, first player has highest combi
     player_with_top_combi = []             # list of player who have top combination
-    for item in players_combi:
+
+    for item in players_combi:             # add all players who have highest combi
         if item[2][0] == top_combi:
             player_with_top_combi.append(item)
             
     if len(player_with_top_combi) == 1:     # one player who has top combi
         winner.append(player_with_top_combi[0])
-    else:                                  # there s a tie        item[2][1] parameter to break tie
+    else:                                   # there s a tie        item[2][1] parameter to break tie
         winner.append(player_with_top_combi[0])
         for i in range(1, len(player_with_top_combi)):
             parameter = player_with_top_combi[i][2][1]
@@ -231,57 +246,6 @@ def check_winner(table, players):
 
     winners = []
     for item in winner:
-        winners.append(item[0])
+        winners.append(item[0])  # winnner list contain player object 
 
     return winners, winning_combi
-
-
-# test code seciton
-#---------------------------------------------------------
-
-'''
-
-5_S K_H Q_S 2_S 2_H
-
-5_H 4_C
-
-T_C 3_H
-
-
-player1 = Player('player 1', 100)
-player2 = Player('player 2', 100)
-table = Table()
-
-player1.add_card(('A_D',13))
-player1.add_card(('A_C',13))
-
-player2.add_card(('9_D',8))
-player2.add_card(('3_C',2))
-
-
-table.add_card(('8_D',7))
-table.add_card(('4_S',3))
-table.add_card(('5_H',4))
-table.add_card(('J_D',10))
-table.add_card(('K_S',12))
-
-players = [player1, player2, player3]
-
-
-print(check_winner(table, players))
-
-
-
-10. Royal flush     nil
-9. Straight flush     take top card
-8. Four of a kind     take top card
-7. Full house         take two card
-6. Flush              same
-5. Straight           take top card
-4. Three of a kind    take one card
-3. Two pair           take two card
-2. Pair               take one card
-1. High Card          take one card
-'''
-
-#---------------------------------------------------------

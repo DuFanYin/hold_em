@@ -20,6 +20,8 @@ cards = { 'A_C' : 13, 'A_D' : 13, 'A_H' : 13, 'A_S' : 13,
           '2_C' : 1, '2_D' : 1, '2_H' : 1, '2_S' : 1,
           }
 
+
+# used to shuffle_cards
 def shuffle_cards(cards):
     key_list = list(cards.keys())
     random.shuffle(key_list)
@@ -29,7 +31,7 @@ def shuffle_cards(cards):
     return shuffled_card
 
 
-# wrapper function to distribute cards at diff game stage
+# function to distribute cards at diff game stage
 def distribute(stage, cards, table, players):
     # pre-flop, each player gets two cards
     def pre_flop(cards, players):
@@ -68,7 +70,7 @@ def collect_bet(players):
         bet += player.take_buffer()
     return bet
 
-
+# reset player state after each stage
 def reset(players):
     for player in players:
         player.reset_state()
@@ -77,9 +79,7 @@ def reset(players):
 # game flow in each stage [preflop, flop, turn, river]
 def game_stage(stage, cards, table, players, pot, ):
     
-
     number_to_call = 0        # number to be called for the next player
-    raised = False            # if player choose to raise
     continue_stage = True     # another round of betting, untill all players either call or fold
     betting_round = 1         # monitor how many round have players bet, in this stage
 
@@ -94,11 +94,10 @@ def game_stage(stage, cards, table, players, pot, ):
             else:
                 your_turn = True   # cycle until player make allowed action
 
-                if betting_round > 1 and player.get_buffer() == number_to_call:
+                if betting_round > 1 and player.get_buffer() == number_to_call: 
                     your_turn = False
                     continue_stage = False
                     
-
                 while your_turn and continue_stage: # break when player choose right action
                     print(player.get_name())
                     print('you have chips:     '+ str(player.get_chips()))
@@ -141,7 +140,7 @@ def game_stage(stage, cards, table, players, pot, ):
                     else:
                         print('ERROR: wrong action name')
 
-                    show_board(stage, pot, table, players, ) # show the board after player make every action
+                show_board(stage, pot, table, players, ) # show the board after player make every action
             print('-'*20)
             
         betting_round += 1
@@ -153,7 +152,6 @@ def game_stage(stage, cards, table, players, pot, ):
 # display the board
 def show_board(stage, pot, table, players, winners = None, winning_combi = None, ):
     print('*'*50)
-    print()
     print('current stage: '+stage)
     print('current pot:  ' + str(pot))
     print('-'*30)
@@ -191,15 +189,8 @@ def game(players, cards):
         pot += collect_bet(players)
         reset(players)
 
-
-    # remove players who folded
-    remain_players = []
-    for player in players:
-        if player.get_state() != 'fold':
-            remain_players.append(player)
-
     # calculate winner, give out prize
-    winners, winning_combi = check_winner(table, remain_players)
+    winners, winning_combi = check_winner(table, players)
     winner_names = []
     for player in winners:
         winner_names.append(player.get_name())
