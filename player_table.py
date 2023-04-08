@@ -29,6 +29,9 @@ class Player:
     def add_card(self, card):
         self.cards.append(card)
 
+    def get_buffer(self):
+        return self.buffer
+
     def take_buffer(self):
         bet = self.buffer
         self.buffer = 0

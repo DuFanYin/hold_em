@@ -240,9 +240,16 @@ def check_winner(table, players):
 #---------------------------------------------------------
 
 '''
+
+5_S K_H Q_S 2_S 2_H
+
+5_H 4_C
+
+T_C 3_H
+
+
 player1 = Player('player 1', 100)
 player2 = Player('player 2', 100)
-player3 = Player('player 3', 100)
 table = Table()
 
 player1.add_card(('A_D',13))
@@ -251,8 +258,6 @@ player1.add_card(('A_C',13))
 player2.add_card(('9_D',8))
 player2.add_card(('3_C',2))
 
-player3.add_card(('A_D',13))
-player3.add_card(('A_C',13))
 
 table.add_card(('8_D',7))
 table.add_card(('4_S',3))

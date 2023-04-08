@@ -60,6 +60,7 @@ def distribute(stage, cards, table, players):
     else:
         river(cards, table)
 
+
 # after all player placed chips, collect and put in pot
 def collect_bet(players):
     bet = 0
@@ -67,67 +68,90 @@ def collect_bet(players):
         bet += player.take_buffer()
     return bet
 
+
 def reset(players):
     for player in players:
         player.reset_state()
 
+
 # game flow in each stage [preflop, flop, turn, river]
-def game_stage(stage, cards, table, players, pot):
+def game_stage(stage, cards, table, players, pot, ):
     
 
-    number_to_call = 0
-    raised = False
-    previous_action = None
+    number_to_call = 0        # number to be called for the next player
+    raised = False            # if player choose to raise
+    continue_stage = True     # another round of betting, untill all players either call or fold
+    betting_round = 1         # monitor how many round have players bet, in this stage
 
     distribute(stage, cards, table, players)
     show_board(stage, pot, table, players, winners = None)
 
-    for player in players:
-        if player.get_state() == 'fold':
-            pass
-        else:
-            your_turn = True
-            while your_turn:
-                print(player.get_name())
-                print('you have chips: '+ str(player.get_chips()))
-                print('number to call:  ' + str(number_to_call))
-                action = input('action to take?  (check, call, raise, fold)' +'\n')
-                if action == 'check':
-                    if previous_action == None or previous_action == 'check':
-                        player.action_handle_check()
-                        previous_action = 'check'
-                        your_turn = False
-                    else:
-                        print('ERROR: you can not check')
+    while continue_stage:    # cycle untill all players either call or fold
+        for player in players:
 
-                elif action == 'call':
-                    if raised:
-                        player.action_handle_call(number_to_call)
-                        previous_action = 'call'
-                        your_turn = False
-                    else:
-                        print('ERROR: you cant call, no bet yet')
+            if player.get_state() == 'fold':
+                pass
+            else:
+                your_turn = True   # cycle until player make allowed action
 
-                elif action == 'raise':
-                    number_to_raise = int(input('how much whould you like to raise?' + '\n'))
-                    if number_to_raise > number_to_call:
-                        player.action_handle_raise(number_to_raise)
-                        number_to_call = number_to_raise
-                        raised = True
-                        your_turn = False
-                    else:
-                        print('ERROR: number is smaller than number to be called')
-                        
-                elif action == 'fold':
-                    player.action_handle_fold()
+                if betting_round > 1 and player.get_buffer() == number_to_call:
                     your_turn = False
-                else:
-                    print('ERROR: wrong action name')
-        print('-'*20)
-        #show_board(stage, pot, table, players)
+                    continue_stage = False
+                    
+
+                while your_turn and continue_stage: # break when player choose right action
+                    print(player.get_name())
+                    print('you have chips:     '+ str(player.get_chips()))
+                    print('number to call:     ' + str(number_to_call))
+                    print('current bet placed: ' + str(player.get_buffer()))
+                    action = input('action to take?  (check, call, raise, fold)' +'\n')
+
+                    #player choose to check
+                    if action == 'check':
+                        if player.get_buffer() == number_to_call:
+                            player.action_handle_check()
+                            previous_action = 'check'
+                            your_turn = False
+                        else:
+                            print('ERROR: you can not check')
+
+                    # player choose to raise
+                    elif action == 'raise':
+                        number_to_raise = int(input('how much whould you like to raise?' + '\n'))
+                        if number_to_raise < player.get_chips():
+                            player.action_handle_raise((number_to_raise+number_to_call) - player.get_buffer())
+                            number_to_call += number_to_raise
+                            your_turn = False
+                        else:
+                            print('ERROR: you dont have enough chips')
+
+                    # player choose to call
+                    elif action == 'call':
+                        if player.get_buffer() != number_to_call:
+                            player.action_handle_call(number_to_call - player.get_buffer())  # match the number to call
+                            your_turn = False
+                        else:
+                            print('ERROR: you can only check or raise')
+   
+                    #player choose to fold
+                    elif action == 'fold':
+                        player.action_handle_fold()
+                        your_turn = False
+
+                    else:
+                        print('ERROR: wrong action name')
+
+                    show_board(stage, pot, table, players, ) # show the board after player make every action
+            print('-'*20)
+            
+        betting_round += 1
+            
+        
+        
+
 
 # display the board
-def show_board(stage, pot, table, players, winners = None, winning_combi = None):
+def show_board(stage, pot, table, players, winners = None, winning_combi = None, ):
     print('*'*50)
     print()
     print('current stage: '+stage)
@@ -153,6 +177,7 @@ def show_board(stage, pot, table, players, winners = None, winning_combi = None)
 
     print('*'*50)
 
+
 # start one hand, four stages
 def game(players, cards):
     shuffled_card = shuffle_cards(cards)
@@ -162,7 +187,7 @@ def game(players, cards):
     # during game
     game_stage_list = ['pre_flop', 'flop', 'turn', 'river']
     for item in game_stage_list:
-        game_stage(item, shuffled_card, table, players, pot)
+        game_stage(item, shuffled_card, table, players, pot, )
         pot += collect_bet(players)
         reset(players)
 
@@ -172,13 +197,11 @@ def game(players, cards):
     for player in players:
         if player.get_state() != 'fold':
             remain_players.append(player)
-    print(remain_players)
-
 
     # calculate winner, give out prize
     winners, winning_combi = check_winner(table, remain_players)
     winner_names = []
-    for item in winners:
+    for player in winners:
         winner_names.append(player.get_name())
     prize = pot/len(winners)
     for player in winners:
@@ -186,7 +209,6 @@ def game(players, cards):
     pot = 0
 
     show_board('result', pot, table, players, winner_names, winning_combi)
-
 
 
 play1 = Player('a', 100)
