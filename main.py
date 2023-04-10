@@ -30,6 +30,7 @@ def shuffle_cards(cards):
         shuffled_card[key] = cards.get(key)
     return shuffled_card
 
+cards = shuffle_cards(cards)
 
 # function to distribute cards at diff game stage
 def distribute(stage, cards, table, players):
@@ -178,14 +179,13 @@ def show_board(stage, pot, table, players, winners = None, winning_combi = None,
 
 # start one hand, four stages
 def game(players, cards):
-    shuffled_card = shuffle_cards(cards)
     pot = 0
     table = Table()
 
     # during game
     game_stage_list = ['pre_flop', 'flop', 'turn', 'river']
     for item in game_stage_list:
-        game_stage(item, shuffled_card, table, players, pot, )
+        game_stage(item, cards, table, players, pot, )
         pot += collect_bet(players)
         reset(players)
 
@@ -207,5 +207,4 @@ play2 = Player('b', 100)
 play3 = Player('c', 100)
 players = [play1, play2, play3]
 
-game(players, cards)
-
+#game(players, cards)

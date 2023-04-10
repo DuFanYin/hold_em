@@ -1,0 +1,16 @@
+server side:
+    handle game 
+    show board, dont show players cards
+    only send player their cards, after that no message send
+
+client side:
+    pass player choice of action to server (action name, number=None)
+    only show players cards
+
+
+
+
+server: choose number of players
+client: connect to server
+server: initiate players with player name and buy-in chips
+
