@@ -5,12 +5,7 @@ ver 1.0  8/04/2023
     features:
 
         multiple players
-
         play one hand
-
-    to be improved:
-
-        can see each others cards
 
 Finished items:
 
