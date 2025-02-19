@@ -1,0 +1,135 @@
+/* src/styles/main.css */
+
+/* Ensure the cards container has some margin and padding */
+.cards-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow the cards to wrap onto a new row if necessary */
+    justify-content: space-evenly; /* Distribute cards evenly */
+    gap: 10px; /* Add spacing between cards */
+    padding: 10px;
+    margin-top: 20px;
+    overflow: hidden; /* Prevent overflow if content exceeds container */
+  }
+  
+  /* Each card should be sized appropriately */
+  .card {
+    width: 50px; /* Adjust the card width to fit within the container */
+    height: 70px; /* Set a fixed height for the card */
+    object-fit: cover; /* Ensure the image fits within the div without distortion */
+    border: 1px solid #ddd; /* Optional: add a border for visual separation */
+  }
+  
+  /* Make the cards responsive for smaller screens */
+  @media (max-width: 768px) {
+    .cards-container {
+      justify-content: center; /* Center the cards on smaller screens */
+    }
+}
+
+/* Game Container */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  /* Headings */
+  h1, h2, h3 {
+    color: #2c3e50;
+    margin: 10px 0;
+  }
+  
+  /* Player List */
+  .player-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  /* Individual Player */
+  .player {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px;
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 300px;
+  }
+  
+  /* Player Info (Name and Cards) */
+  .player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Cards Section */
+  .cards {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  /* Card Image Styling */
+  .card img {
+    width: 50px; /* Adjust size based on your image dimensions */
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card img:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Action Button */
+  button {
+    margin-top: 15px;
+    padding: 8px 15px;
+    font-size: 16px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Table (Community Cards) */
+  .table {
+    margin-top: 30px;
+  }
+  
+  /* Community Cards Section */
+  .community-cards {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  /* Actions Log */
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  li {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #34495e;
+  }

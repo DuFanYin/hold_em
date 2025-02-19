@@ -189,7 +189,6 @@ def check_winner(table, players):
         # a list of [player object, players name, and result of check_combi]
         players_combi.append((player, player.get_name(), check_combi(table, player)))
 
-
     # helper function to rank players
     def take_combi_rank(elem):
         return elem[2][0]

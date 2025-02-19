@@ -1,7 +1,6 @@
 Phase 1: Planning & Setup
-	1.	Define project scope (features: multiplayer, AI, WebSocket, etc.)
-	2.	Choose tech stack (React, Node.js, WebSockets, Firebase, or SQL database)
-	3.	Set up GitHub repository and project structure
+	1.	Define project scope (multiplayer, ai player, online)
+	2.	Choose tech stack (React, Node.js, WebSockets, Firebase, python)
 
 Phase 2: Backend Development
 	4.	Initialize Node.js backend with Express and WebSockets (Socket.io)
