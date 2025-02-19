@@ -80,3 +80,4 @@ class Table:
 
     def get_cards(self):
         return self.cards
+
