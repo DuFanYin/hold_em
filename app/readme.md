@@ -38,3 +38,23 @@ betting rounnd:
     - check if round ended
 
 
+communication flow:
+    1. Player Joins the Game
+	•	The frontend connects to the WebSocket server.
+	•	The player joins a game room (roomId).
+	•	The backend initializes the game state and assigns turn order.
+
+    2. Backend Signals the Current Player’s Turn
+	•	The backend determines who should act and sends a message (yourTurn) to that player.
+	•	The message includes valid actions (e.g., "bet", "fold", "call").
+
+    3. Player Takes an Action
+	•	The frontend only allows valid actions (as sent by the backend).
+	•	The player submits their move via WebSocket.
+	•	The backend directly updates the game state and notifies all players of the new state.
+	•	The backend then signals the next player to act.
+
+    4. Repeat Until the Hand Ends
+	•	The turn moves to the next player.
+	•	The backend keeps signaling whose turn it is.
+	•	Once a round is complete, the backend determines winners, distributes chips, and starts a new round.

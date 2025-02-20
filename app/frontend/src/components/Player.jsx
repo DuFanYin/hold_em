@@ -2,6 +2,9 @@ import React from "react";
 import Card from "./Card"; // Import the Card component to render the player's cards
 
 function Player({ player, handleAction }) {
+    // Set default value for cards in case it is undefined or null
+    const cards = player.cards || [];
+
     return (
         <div className="player">
             {/* Display Player Info */}
@@ -12,7 +15,7 @@ function Player({ player, handleAction }) {
 
             {/* Cards Display */}
             <div className="player-cards">
-                {player.cards.map((card, index) => (
+                {cards.map((card, index) => (
                     <Card key={index} card={card} />
                 ))}
             </div>

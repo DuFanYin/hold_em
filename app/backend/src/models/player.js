@@ -5,6 +5,7 @@ class Player {
         this.placedChips = 0;
         this.hand = []; // Player's hand of cards
         this.hasFolded = false; // Tracks if player folded
+        this.socketId = 0;
     }
 
     // Reset player state for a new round

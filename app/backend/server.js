@@ -1,60 +1,69 @@
-// server/server.js
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
+const { Server } = require("socket.io"); // This imports the "Server" class from socket.io
+const express = require("express");
+const http = require("http");
+const Player = require("./src/models/player"); // Import Player class
+const Table = require("./src/models/table");   // Import Table class
+const GameController = require("./src/controllers/gameControl")
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-      origin: 'http://localhost:3000', // The URL of your frontend app
-      methods: ['GET', 'POST'],
-      allowedHeaders: ['Content-Type'],
-    },
-  });
-
-// Initial game state
-let gameState = {
-  players: ['Player 1', 'Player 2'],  // Example players
-  gameStatus: 'waiting',  // Could be 'waiting', 'in-progress', etc.
-  currentTurn: null,
-  actions: []  // List of actions
-};
-
-app.get('/', (req, res) => {
-  res.send('Server is running');
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000', // The URL of your frontend app
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+  },
 });
 
-// Handling player actions and updating game state
-io.on('connection', (socket) => {
-  console.log('A user connected');  // This will only log once the frontend connects
-  
-  // Send current game state to the newly connected player
-  socket.emit('gameStateUpdate', gameState);
-  
-  // Listen for player actions from the frontend
-  socket.on('playerAction', (action) => {
-    console.log('Player action received:', action);
-    
-    // Update the game state based on the action
-    gameState.actions.push(action);  // Example: track player actions
-    gameState.currentTurn = gameState.players[gameState.actions.length % gameState.players.length];
-    
-    // Update game status
-    if (gameState.actions.length >= 5) {
-      gameState.gameStatus = 'in-progress'; // Example: Game starts after 5 actions
+const rooms = {}; // Store game rooms by roomId
+
+// Express & Socket.IO Setup
+app.get("/", (req, res) => {
+  res.send("Poker Game Server");
+});
+
+io.on("connection", (socket) => {
+  console.log(`Player connected: ${socket.id}`); // Player joined
+
+  socket.on("joinRoom", ({ roomId, playerName }) => {
+    if (!rooms[roomId]) {
+      rooms[roomId] = new GameController(io, roomId); // Create new game room
     }
 
-    // Broadcast updated game state to all connected players
-    io.emit('gameStateUpdate', gameState);
+    const gameControl = rooms[roomId];
+    const player = new Player(playerName);
+    player.socketId = socket.id;
+    gameControl.addPlayer(player);
+    socket.join(roomId);
+
+    console.log(`Player name: ${playerName}`);
+    console.log(`Room name: ${roomId}`);
+
+    gameControl.broadcastGameState();
+
+    // Start game if enough players have joined
+    if (gameControl.table.players.length === 2) {
+      gameControl.startGame();
+    }
   });
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
+
+  socket.on("playerAction", ({ roomId, action }) => {
+    if (!rooms[roomId]) return;
+    rooms[roomId].handlePlayerAction(socket.id, action);
+  });
+
+  socket.on("disconnect", () => {
+    for (const roomId in rooms) {
+      const gameControl = rooms[roomId];
+      gameControl.removePlayer(socket.id);
+
+      if (gameControl.table.players.length === 0) {
+        delete rooms[roomId]; // Clean up empty rooms
+      }
+    }
   });
 });
 
-// Server listens on port 8080
 server.listen(8080, () => {
-  console.log('Server listening on port 8080');
+  console.log("WebSocket server running on http://localhost:8080");
 });
