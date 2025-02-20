@@ -1,73 +1,100 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react';
-import WelcomePage from './pages/WelcomePage';
-import PlayerList from './pages/PlayerList';
-import socket from './utilities/socket';
+import React, { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import Player from './components/Player';
 
-function App() {
-  const [players, setPlayers] = useState([]);
-  const [gameState, setGameState] = useState(null);
-  const [page, setPage] = useState('welcome'); // 'welcome' or 'game'
+// Update the URL to connect to the correct server on port 8080
+const socket = io("http://localhost:8080");
 
-  useEffect(() => {
-    // Listen for game state updates from the backend
-    socket.on('gameStateUpdate', (newGameState) => {
-      setGameState(newGameState);
-    });
+function PokerGame() {
+    const [gameState, setGameState] = useState({});
+    const [playerName, setPlayerName] = useState("");
+    const [roomId, setRoomId] = useState("");
+    const [validMoves, setValidMoves] = useState([]);
+    const [isMyTurn, setIsMyTurn] = useState(false);
+    const [players, setPlayers] = useState([]);
 
-    return () => {
-      socket.off('gameStateUpdate'); // Cleanup listener on unmount
+    useEffect(() => {
+        // Listen for game state updates
+        socket.on("updateGameState", (state) => {
+            setGameState(state);
+            setPlayers(state.players); // Update the players state from the game state
+            setIsMyTurn(false);
+            setValidMoves([]);
+        });
+
+        // Listen for the "yourTurn" event to update the player's turn
+        socket.on("yourTurn", ({ validMoves }) => {
+            setIsMyTurn(true);
+            setValidMoves(validMoves);
+        });
+
+        // Cleanup the socket listeners when the component is unmounted
+        return () => {
+            socket.off("updateGameState");
+            socket.off("yourTurn");
+        };
+    }, []);
+
+    const joinGame = () => {
+        if (playerName && roomId) {
+            socket.emit("joinGame", { roomId, playerName });
+        }
     };
-  }, []);
 
-  const handlePlayerAction = (action) => {
-    socket.emit('playerAction', action);  // Send action to backend
-  };
+    const sendAction = (action) => {
+        if (isMyTurn) {
+            socket.emit("playerAction", { roomId, action });
+            setIsMyTurn(false);
+        }
+    };
 
-  // This will handle when the game starts, initializing players and game state
-  const startGame = (numPlayers) => {
-    // Create dummy player data for the demo (You'd get this from the backend)
-    const dummyPlayers = Array.from({ length: numPlayers }, (_, index) => ({
-      name: `Player ${index + 1}`,
-      cards: [
-        '10_H', // 10 of Hearts
-        'J_C'    // Jack of Clubs
-      ]
-    }));
+    const handleAction = (player) => {
+        // Handle player action (e.g., betting, folding)
+        console.log(`${player.name} is taking an action.`);
+        // Add logic here for player actions
+    };
 
-    // Set dummy community cards (This would come from the backend too)
-    const communityCards = [
-      'A_H', // Ace of Hearts
-      'Q_S', // Queen of Spades
-      '7_D', // 7 of Diamonds
-      '3_C', // 3 of Clubs
-      '9_H'  // 9 of Hearts
-    ];
+    return (
+        <div>
+            <h1>Poker Game</h1>
 
-    setPlayers(dummyPlayers);
-    setGameState({
-      gameStatus: 'waiting',
-      currentTurn: 'Player 1',
-      actions: [],
-      communityCards: communityCards
-    });
+            {/* Input to join the game */}
+            <input
+                type="text"
+                placeholder="Enter Name"
+                onChange={(e) => setPlayerName(e.target.value)}
+            />
+            <input
+                type="text"
+                placeholder="Enter Room ID"
+                onChange={(e) => setRoomId(e.target.value)}
+            />
+            <button onClick={joinGame}>Join Game</button>
 
-    setPage('game');
-  };
+            {/* Game State Display */}
+            <h2>Game State:</h2>
+            <pre>{JSON.stringify(gameState, null, 2)}</pre>
 
-  return (
-    <div className="App">
-      {page === 'welcome' ? (
-        <WelcomePage onStartGame={startGame} />
-      ) : (
-        <PlayerList
-          players={players}
-          gameState={gameState}
-          onPlayerAction={handlePlayerAction}
-        />
-      )}
-    </div>
-  );
+            {/* Player List Section */}
+            <div className="player-list">
+                {players.map((player, index) => (
+                    <Player key={index} player={player} handleAction={handleAction} />
+                ))}
+            </div>
+
+            {/* Show action buttons when it's the player's turn */}
+            {isMyTurn && (
+                <div>
+                    <h2>Your Turn</h2>
+                    {validMoves.map((move) => (
+                        <button key={move} onClick={() => sendAction(move)}>
+                            {move}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 }
 
-export default App;
+export default PokerGame;

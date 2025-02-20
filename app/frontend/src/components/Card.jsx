@@ -61,16 +61,15 @@ const cardImages = {
 };
 
 function Card({ card }) {
-    if (!cardImages[card]) {
+  if (!cardImages[card]) {
       return <div>Error: Card image not found.</div>;
-    }
-  
-    return (
-      <div className="card">
-        <img src={cardImages[card]} alt={card} />
-      </div>
-    );
   }
-  
-  export default Card;
-  
+
+  return (
+      <div className="card">
+          <img src={cardImages[card]} alt={card} />
+      </div>
+  );
+}
+
+export default Card;
