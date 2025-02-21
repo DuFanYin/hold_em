@@ -16,10 +16,12 @@ class BettingRound {
 
     runBettingRound() {
         let activePlayers = this.table.players.filter(player => !player.hasFolded);
-        console.log(`start betting round: ${this.roundPhase}`)
+        console.log(`start betting round: ${this.roundPhase}`);
+
         // If all players have folded, skip the round
         if (activePlayers.length <= 1) {
-            console.log('This round finished')
+            console.log('This round finished');
+            this.table.collectChips();  // Make sure to collect chips when the round ends
         } else {
             this.currentPlayerAction();
         }
@@ -32,21 +34,39 @@ class BettingRound {
             return;
         }
 
-        // signal player to act
-        // this.io.to(player.socketId).emit("playerTurn", { player, bet });
+        // Signal player to act (emit to client)
         this.io.to(player.socketId).emit("playerTurn");
+    }
+
+    isBettingRoundComplete() {
+        let activePlayers = this.table.players.filter(player => !player.hasFolded);
+
+        // All players must have either folded or placed their chips (same bet for all or everyone acted)
+        let allPlayersActed = activePlayers.every(player => player.placedChips >= this.table.betAmount || player.hasFolded);
+
+        // Betting round is complete when all players have acted or only one player remains
+        return allPlayersActed || activePlayers.length <= 1;
+    }
+
+    advancePlayer() {
+        do {
+            this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
+        } while (this.table.players[this.currentPlayerIndex].hasFolded);
+
+        this.currentPlayerAction();
     }
 
     handlePlayerAction(action, raiseAmount = 0) {
         let player = this.table.players[this.currentPlayerIndex];
-        if (!player || player.hasFolded) return;
-
-        console.log(`player ${player.name} : ${action}`)
+        console.log(`player ${player.name} : ${action}`);
 
         let amountToCall = this.table.betAmount - player.placedChips;
 
         if (action === 'call') {
-            player.placeChips(amountToCall);
+            if (amountToCall > 0) {
+                player.placeChips(amountToCall);
+            }
+
         } else if (action === 'raise') {
             player.placeChips(raiseAmount);
             this.table.betAmount = raiseAmount; // Update the bet amount after raise
@@ -58,27 +78,11 @@ class BettingRound {
 
         // Check if all players have either folded or bet the same amount
         if (this.isBettingRoundComplete()) {
-            console.log('This round finished')
+            console.log('This round finished');
             this.table.collectChips();
         } else {
             this.advancePlayer();
         }
-    }
-
-    isBettingRoundComplete() {
-        let activePlayers = this.table.players.filter(player => !player.hasFolded);
-        let betAmounts = new Set(activePlayers.map(player => player.placedChips));
-
-        // Betting round is complete when either all players have the same bet or only one player remains
-        return betAmounts.size === 1 || activePlayers.length <= 1;
-    }
-
-    advancePlayer() {
-        do {
-            this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
-        } while (this.table.players[this.currentPlayerIndex].hasFolded);
-
-        this.currentPlayerAction();
     }
 
     broadcastGameState() {

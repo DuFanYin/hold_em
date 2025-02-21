@@ -99,12 +99,12 @@ class GameController {
     }
 
     // Start the game and manage rounds
-    startGame() {
+    async startGame() {
         this.assignPosition();
         this.dealPlayerCards();
 
         this.table.roundPhase = this.roundPhase;
-        this.runBettingRound('preflop'); // with roundPhase = preflop
+        await this.runBettingRound('preflop'); // with roundPhase = preflop
 
         this.roundPhase = 'flop';
         this.dealCommunityCards('flop');
