@@ -15,36 +15,16 @@ class BettingRound {
     }
 
     runBettingRound() {
-        return new Promise((resolve, reject) => {
-            let activePlayers = this.table.players.filter(player => !player.hasFolded);
-            console.log(`start betting round: ${this.roundPhase}`);
+        let activePlayers = this.table.players.filter(player => !player.hasFolded);
+        console.log(`start betting round: ${this.roundPhase}`);
 
-            // If all players have folded, skip the round
-            if (activePlayers.length <= 1) {
-                console.log('This round finished');
-                this.table.collectChips();  // Make sure to collect chips when the round ends
-                resolve();  // Resolve when the round finishes
-                return;
-            }
-
-            // Start the betting round by handling the first player's action
+        // If all players have folded, skip the round
+        if (activePlayers.length <= 1) {
+            console.log('This round finished');
+            this.table.collectChips();  // Make sure to collect chips when the round ends
+        } else {
             this.currentPlayerAction();
-
-            // Listen for player actions and resolve once the round is complete
-            this.io.on('playerAction', (actionData) => {
-                this.handlePlayerAction(actionData.action, actionData.raiseAmount);
-
-                // After handling the action, check if the round is complete
-                if (this.isBettingRoundComplete()) {
-                    console.log('This round finished');
-                    this.table.collectChips();  // Collect chips when round is finished
-                    resolve();  // Resolve the promise when the round is complete
-                } else {
-                    // Continue to the next player's action if the round isn't complete
-                    this.advancePlayer();
-                }
-            });
-        });
+        }
     }
 
     currentPlayerAction() {
@@ -55,7 +35,7 @@ class BettingRound {
         }
 
         // Signal player to act (emit to client)
-        this.io.to(player.socketId).emit("playerTurn", { roundPhase: this.roundPhase });
+        this.io.to(player.socketId).emit("playerTurn");
     }
 
     isBettingRoundComplete() {
@@ -95,21 +75,29 @@ class BettingRound {
         }
 
         this.broadcastGameState();
+
+        // Check if all players have either folded or bet the same amount
+        if (this.isBettingRoundComplete()) {
+            console.log('This round finished');
+            this.table.collectChips();
+        } else {
+            this.advancePlayer();
+        }
     }
 
     broadcastGameState() {
         this.table.players.forEach((player) => {
-            this.io.to(player.socketId).emit("updateGameState", {
-                table: {
-                    ...this.table,
-                    players: this.table.players.map((p) => ({
-                        ...p,
-                        hand: p.socketId === player.socketId ? p.hand : ["?", "?"], // Hide others' cards
-                    })),
-                },
-            });
+          this.io.to(player.socketId).emit("updateGameState", {
+            table: {
+              ...this.table,
+              players: this.table.players.map((p) => ({
+                ...p,
+                hand: p.socketId === player.socketId ? p.hand : ["?", "?"], // Hide others' cards
+              })),
+            },
+          });
         });
-    }
+      }
 }
 
 module.exports = BettingRound;

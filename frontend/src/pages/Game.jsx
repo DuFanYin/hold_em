@@ -49,7 +49,6 @@ const GamePage = () => {
   };
 
   
-
   return (
     <div className="p-4">
       {gameState && (
