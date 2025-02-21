@@ -45,7 +45,17 @@ class GameController {
     }
 
     broadcastGameState() {
-        this.io.to(this.roomId).emit("updateGameState", { table: this.table });
+      this.table.players.forEach((player) => {
+        this.io.to(player.socketId).emit("updateGameState", {
+          table: {
+            ...this.table,
+            players: this.table.players.map((p) => ({
+              ...p,
+              hand: p.socketId === player.socketId ? p.hand : ["?", "?"], // Hide others' cards
+            })),
+          },
+        });
+      });
     }
 
     dealPlayerCards() {
@@ -55,27 +65,19 @@ class GameController {
         }
 
         console.log(`Game started for room ${this.roomId}`);
-    
-        this.table.players.forEach((player) => {
-          this.io.to(player.socketId).emit("updateGameState", {
-            table: {
-              ...this.table,
-              players: this.table.players.map((p) => ({
-                ...p,
-                hand: p.socketId === player.socketId ? p.hand : ["?", "?"], // Hide others' cards
-              })),
-            },
-          });
-        });
+        this.broadcastGameState();
     }
 
     dealCommunityCards(roundPhase) {
       if (roundPhase == 'flop'){
-          this.table.communityCards.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
+        const cards = [this.deck.pop(), this.deck.pop(), this.deck.pop()];
+        this.table.communityCards.push(...cards);  // Spread the cards individually into the array
       }
-      else
-          this.table.communityCards.push(this.deck.pop());
-  }
+      else{
+        const card = this.deck.pop();
+        this.table.communityCards.push(card);
+      }
+    }
     
     handlePlayerAction(action, amount) {
       if (this.currentBettingRound) {
@@ -98,11 +100,14 @@ class GameController {
     startGame() {
 
         this.dealPlayerCards();
-        this.runBettingRound(); // with roundPhase = preflop
+        // this.runBettingRound(); // with roundPhase = preflop
         
         // Simulate subsequent rounds
+        console.log('dealt player cards')
         this.roundPhase = 'flop';
         this.dealCommunityCards();
+
+        /*
         this.runBettingRound();
 
         this.roundPhase = 'turn';
@@ -112,6 +117,7 @@ class GameController {
         this.roundPhase = 'river';
         this.dealCommunityCards();
         this.runBettingRound();
+        */
     }
 }
 
