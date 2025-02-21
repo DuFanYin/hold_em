@@ -49,6 +49,7 @@ io.on("connection", (socket) => {
   socket.on("startGame", ({roomId}) => {
     const gameControl = rooms[roomId];
     gameControl.startGame();
+    console.log(`Game started for room ${roomId}`);
   });
 
   socket.on("playerAction", ({ roomId, action, amount }) => {

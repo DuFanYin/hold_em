@@ -17,6 +17,10 @@ class Table {
         });
     }
 
+    receiveCards(cards) {
+        this.communityCards.push(...cards); // Adds new cards to the player's hand
+    }
+
     // Method to add chips to a player (e.g., after winning a round)
     awardChips(playerName, amount) {
         const player = this.players.find(p => p.name === playerName);

@@ -85,8 +85,18 @@ class BettingRound {
     }
 
     broadcastGameState() {
-        this.io.to(this.table.roomId).emit("updateGameState", { table: this.table });
-    }
+        this.table.players.forEach((player) => {
+          this.io.to(player.socketId).emit("updateGameState", {
+            table: {
+              ...this.table,
+              players: this.table.players.map((p) => ({
+                ...p,
+                hand: p.socketId === player.socketId ? p.hand : ["?", "?"], // Hide others' cards
+              })),
+            },
+          });
+        });
+      }
 }
 
 module.exports = BettingRound;

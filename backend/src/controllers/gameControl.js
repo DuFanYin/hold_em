@@ -36,7 +36,6 @@ class GameController {
 
     addPlayer(player) {
         this.table.players.push(player);
-        this.broadcastGameState();
       }
 
     removePlayer(socketId) {
@@ -64,19 +63,24 @@ class GameController {
           player.receiveCards(cards);
         }
 
-        console.log(`Game started for room ${this.roomId}`);
+        console.log(`Player cards dealt for room: ${this.roomId}`);
+
         this.broadcastGameState();
     }
 
     dealCommunityCards(roundPhase) {
-      if (roundPhase == 'flop'){
-        const cards = [this.deck.pop(), this.deck.pop(), this.deck.pop()];
-        this.table.communityCards.push(...cards);  // Spread the cards individually into the array
+      if (roundPhase == 'flop') {
+          const cards = [this.deck.pop(), this.deck.pop(), this.deck.pop()];
+          this.table.receiveCards(cards);
       }
-      else{
-        const card = this.deck.pop();
-        this.table.communityCards.push(card);
+      else {
+          const card = [this.deck.pop()];
+          this.table.receiveCards(card);
       }
+  
+      console.log(`Community cards dealt for room: ${this.roomId}`);
+
+      this.broadcastGameState();
     }
     
     handlePlayerAction(action, amount) {
@@ -101,11 +105,8 @@ class GameController {
 
         this.dealPlayerCards();
         // this.runBettingRound(); // with roundPhase = preflop
-        
-        // Simulate subsequent rounds
-        console.log('dealt player cards')
-        this.roundPhase = 'flop';
-        this.dealCommunityCards();
+      
+        this.dealCommunityCards('flop');
 
         /*
         this.runBettingRound();
