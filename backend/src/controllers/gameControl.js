@@ -7,9 +7,9 @@ class GameController {
       this.io = io;
       this.roomId = roomId;
       this.table = new Table();
-      this.roundPhase = 'preflop'; // Can be 'preflop', 'flop', 'turn', 'river'
       this.currentBettingRound = null;
-      this.currentRound = 0;
+      this.roundNumber = 0;
+      this.roundPhase = 'preflop';
       this.deck = this.createDeck(); // Create and shuffle the deck
     }
 
@@ -64,7 +64,6 @@ class GameController {
         }
 
         console.log(`Player cards dealt for room: ${this.roomId}`);
-
         this.broadcastGameState();
     }
 
@@ -77,8 +76,6 @@ class GameController {
           const card = [this.deck.pop()];
           this.table.receiveCards(card);
       }
-  
-      console.log(`Community cards dealt for room: ${this.roomId}`);
 
       this.broadcastGameState();
     }
@@ -87,6 +84,7 @@ class GameController {
       if (this.currentBettingRound) {
           this.currentBettingRound.handlePlayerAction(action, amount);
       }
+      
     }
 
     resetDeck() {
@@ -95,22 +93,25 @@ class GameController {
     }
 
     // Start a new betting round
-    runBettingRound() {
-        this.currentBettingRound = new BettingRound(this.io, this.table, this.roundPhase);
+    runBettingRound(roundPhase) {
+        this.currentBettingRound = new BettingRound(this.io, this.table, roundPhase);
         this.currentBettingRound.runBettingRound();
     }
 
     // Start the game and manage rounds
     startGame() {
-
+        this.assignPosition();
         this.dealPlayerCards();
-        // this.runBettingRound(); // with roundPhase = preflop
-      
+
+        this.table.roundPhase = this.roundPhase;
+        this.runBettingRound('preflop'); // with roundPhase = preflop
+
+        this.roundPhase = 'flop';
         this.dealCommunityCards('flop');
-
+        this.table.roundPhase = this.roundPhase;
+        this.runBettingRound('flop'); // with roundPhase = flop
+        
         /*
-        this.runBettingRound();
-
         this.roundPhase = 'turn';
         this.dealCommunityCards();
         this.runBettingRound();
@@ -119,6 +120,19 @@ class GameController {
         this.dealCommunityCards();
         this.runBettingRound();
         */
+    }
+
+    assignPosition(){
+        let dealer = this.table.players[(this.table.dealerPosition) % this.table.players.length];
+        let smallBlindPlayer = this.table.players[(this.table.dealerPosition + 1) % this.table.players.length];
+        let bigBlindPlayer = this.table.players[(this.table.dealerPosition + 2) % this.table.players.length];
+
+        dealer.position = 'Dealer';
+        smallBlindPlayer.position = 'Small Blind';
+        bigBlindPlayer.position = 'Big Blind';
+
+        smallBlindPlayer.placeChips(50);
+        bigBlindPlayer.placeChips(100);
     }
 }
 

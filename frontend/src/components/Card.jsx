@@ -60,16 +60,26 @@ const cardImages = {
   'A_S': '/cards/A_S.png',
 };
 
-function Card({ card }) {
-  if (!cardImages[card]) {
-      return <div>Error: Card image not found.</div>;
-  }
+const Card = ({ card }) => {
+  // If the card is not "?", create an image source based on rank and suit
 
   return (
-      <div className="card">
-          <img src={cardImages[card]} alt={card} />
-      </div>
+    <div className="border p-2 rounded bg-white shadow-md">
+      {card === "?" ? (
+        "?" // Display "?" if the card is unknown
+      ) : (
+        <img
+          src={cardImages[`${card.rank}_${card.suit}`]}
+          alt={`${card.rank} of ${card.suit}`}
+          style={{
+            width: "60px",
+            height: "auto",
+          }}
+        />
+      )}
+    </div>
   );
-}
+};
 
 export default Card;
+

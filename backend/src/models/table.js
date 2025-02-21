@@ -4,6 +4,8 @@ class Table {
         this.dealerPosition = 0; // Initially set the dealer position to the first player
         this.communityCards = []; // Empty array to hold the 5 community cards
         this.pot = 0; // Pot at the start is empty
+        this.roundPhase = 'pre-flop';
+        this.betAmount = 0;
         
     }
 

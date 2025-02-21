@@ -11,3 +11,8 @@ log:
 	- send back gamestate to forntend
 	- player action pass from server->gamecontrol->bettinground
 	- bettinground emit gamestate to player
+
+	- deal player cards correct
+	- deal community cards correct
+
+cloc . --exclude-dir=node_modules,build --exclude-ext=log,json,md,txt           

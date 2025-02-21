@@ -1,87 +1,129 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import io from "socket.io-client";
-import Player from "../components/Player"; // Component to display player info
 
-const socket = io("http://localhost:8080");
+const socket = io("http://localhost:3000"); // Replace with your server URL
 
-function Game() {
-  const { roomId, playerName } = useParams(); // Get roomId and playerName from URL params
+const Card = ({ card }) => (
+  <div className="border p-2 rounded bg-white shadow-md">
+    {card === "?" ? "?" : `${card.rank} ${card.suit}`}
+  </div>
+);
+
+const Player = ({ player, isDealer }) => (
+  <div className={`p-4 border rounded ${player.hasFolded ? "bg-gray-300" : "bg-gray-200"}`}>
+    <h3>
+      {player.name} {isDealer && "(Dealer)"}
+    </h3>
+    <p>Chips: {player.chips}</p>
+    <p>Bet: {player.placedChips}</p>
+    <p>Status: {player.hasFolded ? "Folded" : "Active"}</p>
+    <div className="flex gap-2 mb-2">
+      {player.hand.map((card, index) => (
+        <Card key={index} card={card} />
+      ))}
+    </div>
+  </div>
+);
+
+const Table = ({ table }) => (
+  <div className="p-4 border rounded bg-green-300">
+    <h2>Table</h2>
+    <p>Pot: {table.pot}</p>
+    <h3>Community Cards</h3>
+    <div className="flex gap-2">
+      {table.communityCards.map((card, index) => (
+        <Card key={index} card={card} />
+      ))}
+    </div>
+  </div>
+);
+
+const GamePage = ({ roomId, userSocketId }) => {
   const [gameState, setGameState] = useState(null);
-  const [action, setAction] = useState(""); // Track the current player's action
+  const [isUserTurn, setIsUserTurn] = useState(false);
+  const [amountToCall, setAmountToCall] = useState(0);
+  const [raiseAmount, setRaiseAmount] = useState("");
 
   useEffect(() => {
-    // Join the game room when the component mounts
-    socket.emit("joinRoom", { roomId, playerName });
-
-    // Listen for game state updates
-    socket.on("updateGameState", (updatedGameState) => {
-      setGameState(updatedGameState);
+    socket.on("updateGameState", (data) => {
+      setGameState(data.table);
+      setIsUserTurn(false); // Reset turn state
     });
 
-    // Clean up when the component unmounts
+    socket.on("playerTurn", ({ player, amountToCall }) => {
+      if (player.socketId === userSocketId) {
+        setIsUserTurn(true);
+        setAmountToCall(amountToCall);
+      } else {
+        setIsUserTurn(false);
+      }
+    });
+
     return () => {
       socket.off("updateGameState");
+      socket.off("playerTurn");
     };
-  }, [roomId, playerName]);
+  }, [userSocketId]);
 
-  const handleAction = (action) => {
-    if (!gameState) return;
-
-    // Send the player's action to the server
-    socket.emit("playerAction", { roomId, action });
-
-    // Reset action after sending it
-    setAction("");
-  };
-
-  const renderPlayers = () => {
-    if (!gameState) return null;
-
-    return gameState.room.table.players.map((player) => (
-      <Player key={player.socketId} player={player} handleAction={handleAction} />
-    ));
+  const handleAction = (action, amount = 0) => {
+    socket.emit("playerAction", { roomId, action, amount });
+    setIsUserTurn(false); // Prevent multiple actions
   };
 
   return (
-    <div className="game p-4 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-center text-blue-600 mb-4">
-        Poker Game - Room: {roomId}
-      </h1>
-      <p className="text-xl text-center mb-6">Welcome, {playerName}!</p>
-
-      {/* Render the players */}
-      <div className="players grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-        {renderPlayers()}
-      </div>
-
-      {/* Actions (Bet, Fold, etc.) */}
-      <div className="actions flex justify-center space-x-4 mb-6">
-        <button
-          onClick={() => handleAction("bet")}
-          className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300"
-        >
-          Bet
-        </button>
-        <button
-          onClick={() => handleAction("fold")}
-          className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300"
-        >
-          Fold
-        </button>
-      </div>
-
-      {/* Display the current action */}
-      <div className="current-action text-center mb-6">
-        <p className="text-xl text-gray-700">Current Action: {action}</p>
-      </div>
-
-      {/* Display the table and pot */}
-      <div className="table-info text-center">
-        <p className="text-lg text-gray-800">Pot: {gameState ? gameState.room.pot : 0}</p>
-      </div>
+    <div className="p-4">
+      {gameState && (
+        <>
+          <Table table={gameState} />
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {gameState.players.map((player, index) => (
+              <Player key={player.socketId} player={player} isDealer={index === gameState.dealerPosition} />
+            ))}
+          </div>
+          <div className="mt-4 flex flex-col items-center">
+            <h3 className="text-lg font-semibold">Your Turn: {isUserTurn ? "Yes" : "No"}</h3>
+            <div className="flex gap-2 mt-2">
+              <button
+                className={`px-4 py-2 rounded ${isUserTurn ? "bg-blue-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
+                disabled={!isUserTurn}
+                onClick={() => handleAction("check")}
+              >
+                Check
+              </button>
+              <button
+                className={`px-4 py-2 rounded ${isUserTurn ? "bg-green-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
+                disabled={!isUserTurn}
+                onClick={() => handleAction("call", amountToCall)}
+              >
+                Call ({amountToCall})
+              </button>
+              <input
+                type="number"
+                className="border p-1 rounded"
+                value={raiseAmount}
+                onChange={(e) => setRaiseAmount(e.target.value)}
+                disabled={!isUserTurn}
+              />
+              <button
+                className={`px-4 py-2 rounded ${isUserTurn ? "bg-yellow-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
+                disabled={!isUserTurn || !raiseAmount}
+                onClick={() => handleAction("raise", parseInt(raiseAmount))}
+              >
+                Raise
+              </button>
+              <button
+                className={`px-4 py-2 rounded ${isUserTurn ? "bg-red-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
+                disabled={!isUserTurn}
+                onClick={() => handleAction("fold")}
+              >
+                Fold
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
-}
+};
 
-export default Game;
+export default GamePage;
