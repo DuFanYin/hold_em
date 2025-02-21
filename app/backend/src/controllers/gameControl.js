@@ -10,10 +10,33 @@ class GameController {
       this.roundPhase = 'preflop'; // Can be 'preflop', 'flop', 'turn', 'river'
       this.currentBettingRound = null;
       this.currentRound = 0;
+      this.deck = this.createDeck(); // Create and shuffle the deck
+    }
+
+    createDeck() {
+      const suits = ['H', 'D', 'C', 'S'];
+      const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+      let deck = [];
+
+      // Populate the deck with all cards
+      for (let suit of suits) {
+          for (let rank of ranks) {
+              deck.push({ rank, suit });
+          }
+      }
+
+      // Shuffle the deck using Fisher-Yates algorithm
+      for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]]; // Swap cards
+      }
+
+      return deck;
     }
 
     addPlayer(player) {
-        this.table.addPlayerToTable(player);
+        this.table.players.push(player);
+        this.broadcastGameState();
       }
 
     removePlayer(socketId) {
@@ -26,7 +49,10 @@ class GameController {
     }
 
     dealPlayerCards() {
-        this.table.dealCardsToPlayers();
+        for (let player of this.table.players) {
+          const cards = [this.deck.pop(), this.deck.pop()]; // Deal 2 cards to each player
+          player.receiveCards(cards);
+        }
 
         console.log(`Game started for room ${this.roomId}`);
     
@@ -43,6 +69,12 @@ class GameController {
         });
     }
     
+    handlePlayerAction(action, amount) {
+      if (this.currentBettingRound) {
+          this.currentBettingRound.handlePlayerAction(action, amount);
+      }
+    }
+
     // Start a new betting round
     startBettingRound() {
         this.currentBettingRound = new BettingRound(this.io, this.table, this.roundPhase);
