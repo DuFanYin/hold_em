@@ -89,36 +89,29 @@ class GameController {
     }
 
     // Start a new betting round
-    startBettingRound() {
+    runBettingRound() {
         this.currentBettingRound = new BettingRound(this.io, this.table, this.roundPhase);
-        this.currentBettingRound.start();
+        this.currentBettingRound.runBettingRound();
     }
 
     // Start the game and manage rounds
     startGame() {
 
-        let smallBlindPlayer = this.table.players[(this.table.dealerPosition + 1) % this.table.players.length];
-        let bigBlindPlayer = this.table.players[(this.table.dealerPosition + 2) % this.table.players.length];
-
-        smallBlindPlayer.placeChips(50);
-        bigBlindPlayer.placeChips(100);
-        this.betAmount = 100;
-
         this.dealPlayerCards();
-        this.startBettingRound(); // pre-flop
+        this.runBettingRound(); // with roundPhase = preflop
         
         // Simulate subsequent rounds
         this.roundPhase = 'flop';
         this.dealCommunityCards();
-        this.startBettingRound();
+        this.runBettingRound();
 
         this.roundPhase = 'turn';
         this.dealCommunityCards();
-        this.startBettingRound();
+        this.runBettingRound();
 
         this.roundPhase = 'river';
         this.dealCommunityCards();
-        this.startBettingRound();
+        this.runBettingRound();
     }
 }
 

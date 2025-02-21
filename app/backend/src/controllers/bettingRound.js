@@ -3,22 +3,36 @@ class BettingRound {
         this.io = io;
         this.table = table;
         this.roundPhase = roundPhase;
-        this.betAmount = 0;
 
+        // Set the current player index based on round phase
         if (roundPhase === "preflop") {
             this.currentPlayerIndex = (table.dealerPosition + 3) % table.players.length;
+
+            let smallBlindPlayer = this.table.players[(this.table.dealerPosition + 1) % this.table.players.length];
+            let bigBlindPlayer = this.table.players[(this.table.dealerPosition + 2) % this.table.players.length];
+
+            smallBlindPlayer.placeChips(50);
+            bigBlindPlayer.placeChips(100);
+
+            this.betAmount = 100;
         } else {
             this.currentPlayerIndex = (table.dealerPosition + 1) % table.players.length;
+            this.betAmount = 0;
         }
     }
 
-    start() {
+    runBettingRound() {
         let activePlayers = this.table.players.filter(player => !player.hasFolded);
 
-        this.nextTurn();
+        // If all players have folded, skip the round
+        if (activePlayers.length <= 1) {
+            console.log('This round finished')
+        } else {
+            this.currentPlayerAction();
+        }
     }
 
-    nextTurn() {
+    currentPlayerAction() {
         let player = this.table.players[this.currentPlayerIndex];
         if (player.hasFolded) {
             this.advancePlayer();
@@ -39,27 +53,35 @@ class BettingRound {
             player.placeChips(amountToCall);
         } else if (action === 'raise') {
             player.placeChips(amountToCall + raiseAmount);
-            this.betAmount += raiseAmount;
+            this.betAmount = player.placedChips; // Update the bet amount after raise
         } else if (action === 'fold') {
             player.hasFolded = true;
         }
 
         this.broadcastGameState();
-        this.advancePlayer();
+
+        // Check if all players have either folded or bet the same amount
+        if (this.isBettingRoundComplete()) {
+            console.log('This round finished')
+        } else {
+            this.advancePlayer();
+        }
     }
 
-    startPreFlopBetting() {
-        let smallBlindPlayer = this.table.players[(this.table.dealerPosition + 1) % this.table.players.length];
-        let bigBlindPlayer = this.table.players[(this.table.dealerPosition + 2) % this.table.players.length];
+    isBettingRoundComplete() {
+        let activePlayers = this.table.players.filter(player => !player.hasFolded);
+        let betAmounts = new Set(activePlayers.map(player => player.placedChips));
 
-        smallBlindPlayer.placeChips(50);
-        bigBlindPlayer.placeChips(100);
-        this.betAmount = 100;
+        // Betting round is complete when either all players have the same bet or only one player remains
+        return betAmounts.size === 1 || activePlayers.length <= 1;
     }
 
     advancePlayer() {
-        this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
-        this.nextTurn();
+        do {
+            this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
+        } while (this.table.players[this.currentPlayerIndex].hasFolded);
+
+        this.currentPlayerAction();
     }
 
     broadcastGameState() {
@@ -67,5 +89,4 @@ class BettingRound {
     }
 }
 
-module.exports = BettingRound; // Export the class
-
+module.exports = BettingRound;
