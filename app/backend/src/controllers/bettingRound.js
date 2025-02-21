@@ -29,8 +29,8 @@ class BettingRound {
         this.io.to(player.socketId).emit("playerTurn", { player, amountToCall });
     }
 
-    handlePlayerAction(playerSocketId, action, raiseAmount = 0) {
-        let player = this.table.players.find(p => p.socketId === playerSocketId);
+    handlePlayerAction(action, raiseAmount = 0) {
+        let player = this.table.players[this.currentPlayerIndex];
         if (!player || player.hasFolded) return;
 
         let amountToCall = this.betAmount - player.placedChips;

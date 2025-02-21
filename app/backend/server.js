@@ -51,10 +51,12 @@ io.on("connection", (socket) => {
     gameControl.startGame();
   });
 
-  socket.on("playerAction", ({ roomId, action }) => {
-    
+  socket.on("playerAction", ({ roomId, action, amount }) => {
+    const gameControl = rooms[roomId];
+    if (gameControl[roomId]) {
+        gameControl[roomId].handlePlayerAction(action, amount);
+    }
   });
-
 
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
