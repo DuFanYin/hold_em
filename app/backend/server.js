@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log(`Player connected: ${socket.id}`); // Player joined
+  console.log(`ID ${socket.id} connected`); // Player joined
 
   socket.on("joinRoom", ({ roomId, playerName }) => {
     if (!rooms[roomId]) {
@@ -36,31 +36,39 @@ io.on("connection", (socket) => {
     gameControl.addPlayer(player);
     socket.join(roomId);
 
-    console.log(`Player name: ${playerName}`);
-    console.log(`Room name: ${roomId}`);
+    console.log(`Player [${playerName}] joined room [${roomId}]`);
 
     gameControl.broadcastGameState();
 
     // Start game if enough players have joined
     if (gameControl.table.players.length === 2) {
-      gameControl.startGame();
+     // gameControl.startGame();
     }
   });
 
-  socket.on("playerAction", ({ roomId, action }) => {
-    if (!rooms[roomId]) return;
-    rooms[roomId].handlePlayerAction(socket.id, action);
+  socket.on("startGame", ({roomId}) => {
+    const gameControl = rooms[roomId];
+    gameControl.startGame();
   });
+
+  socket.on("playerAction", ({ roomId, action }) => {
+    
+  });
+
 
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
       const gameControl = rooms[roomId];
       gameControl.removePlayer(socket.id);
 
+      console.log(`ID ${socket.id} disconnected`); 
+
       if (gameControl.table.players.length === 0) {
         delete rooms[roomId]; // Clean up empty rooms
       }
     }
+
+
   });
 });
 

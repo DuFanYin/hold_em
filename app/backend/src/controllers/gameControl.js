@@ -14,7 +14,6 @@ class GameController {
 
     addPlayer(player) {
         this.table.addPlayerToTable(player);
-        this.broadcastGameState();
       }
 
     removePlayer(socketId) {
@@ -28,6 +27,7 @@ class GameController {
 
     dealPlayerCards() {
         this.table.dealCardsToPlayers();
+
         console.log(`Game started for room ${this.roomId}`);
     
         this.table.players.forEach((player) => {
@@ -52,7 +52,16 @@ class GameController {
     // Start the game and manage rounds
     startGame() {
         // Begin the pre-flop round
-        this.startBettingRound();
+        this.dealPlayerCards();
+
+        let smallBlindPlayer = this.table.players[(this.table.dealerPosition + 1) % this.table.players.length];
+        let bigBlindPlayer = this.table.players[(this.table.dealerPosition + 2) % this.table.players.length];
+
+        smallBlindPlayer.placeChips(50);
+        bigBlindPlayer.placeChips(100);
+        this.betAmount = 100;
+
+        this.startBettingRound(); // pre-flop
         
         // Simulate subsequent rounds
         this.roundPhase = 'flop';

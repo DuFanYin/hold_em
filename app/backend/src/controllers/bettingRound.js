@@ -3,16 +3,17 @@ class BettingRound {
         this.io = io;
         this.table = table;
         this.roundPhase = roundPhase;
-        this.currentPlayerIndex = (table.dealerPosition + 1) % table.players.length;
         this.betAmount = 0;
+
+        if (roundPhase === "preflop") {
+            this.currentPlayerIndex = (table.dealerPosition + 3) % table.players.length;
+        } else {
+            this.currentPlayerIndex = (table.dealerPosition + 1) % table.players.length;
+        }
     }
 
     start() {
         let activePlayers = this.table.players.filter(player => !player.hasFolded);
-
-        if (this.roundPhase === 'preflop') {
-            this.startPreFlopBetting();
-        }
 
         this.nextTurn();
     }

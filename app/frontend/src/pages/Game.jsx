@@ -24,10 +24,15 @@ function Game() {
     };
   }, [roomId, playerName]);
 
+  const startGame = () => {
+    socket.emit("startGame", { roomId });
+  };
+
   return (
     <div>
-      hi
-
+      <h1>Game Room: {roomId}</h1>
+      <p>Player: {playerName}</p>
+      <button onClick={startGame}>Start Game</button>
     </div>
   );
 }
