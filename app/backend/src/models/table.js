@@ -28,15 +28,6 @@ class Table {
         this.pot = 0;
     }
 
-    // Method to deal the community cards (flop, turn, river)
-    dealCommunityCards(phase) {
-        if (phase == 'Flop'){
-            this.communityCards.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
-        }
-        else
-            this.communityCards.push(this.deck.pop());
-    }
-
     // Method to reset the table for a new round
     resetTableForNewGame() {
         this.communityCards = [];
@@ -46,13 +37,6 @@ class Table {
         });
         this.moveDealerPosition();
         this.resetDeck();
-    }
-
-    // helper funciton       -------------------------------------------------------------------------
-    // Method to reset the game for a new round
-    resetDeck() {
-        this.deck = this.createDeck(); // Create and shuffle a new deck
-        this.deck.pop(); // Remove the first card to simulate the burn card (optional)
     }
 
     // Method to move the dealer position

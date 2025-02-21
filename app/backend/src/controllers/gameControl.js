@@ -68,11 +68,24 @@ class GameController {
           });
         });
     }
+
+    dealCommunityCards(roundPhase) {
+      if (roundPhase == 'flop'){
+          this.table.communityCards.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
+      }
+      else
+          this.table.communityCards.push(this.deck.pop());
+  }
     
     handlePlayerAction(action, amount) {
       if (this.currentBettingRound) {
           this.currentBettingRound.handlePlayerAction(action, amount);
       }
+    }
+
+    resetDeck() {
+      this.deck = this.createDeck(); // Create and shuffle a new deck
+      this.deck.pop(); // Remove the first card to simulate the burn card (optional)
     }
 
     // Start a new betting round
@@ -83,8 +96,6 @@ class GameController {
 
     // Start the game and manage rounds
     startGame() {
-        // Begin the pre-flop round
-        this.dealPlayerCards();
 
         let smallBlindPlayer = this.table.players[(this.table.dealerPosition + 1) % this.table.players.length];
         let bigBlindPlayer = this.table.players[(this.table.dealerPosition + 2) % this.table.players.length];
@@ -93,16 +104,20 @@ class GameController {
         bigBlindPlayer.placeChips(100);
         this.betAmount = 100;
 
+        this.dealPlayerCards();
         this.startBettingRound(); // pre-flop
         
         // Simulate subsequent rounds
         this.roundPhase = 'flop';
+        this.dealCommunityCards();
         this.startBettingRound();
 
         this.roundPhase = 'turn';
+        this.dealCommunityCards();
         this.startBettingRound();
 
         this.roundPhase = 'river';
+        this.dealCommunityCards();
         this.startBettingRound();
     }
 }

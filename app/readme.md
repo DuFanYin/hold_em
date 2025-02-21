@@ -7,10 +7,6 @@ player object:
     - isFold 
 
 table:
-    - add players into table
-    - create and shufflu deck
-    - deal two cards to each player
-    - deal community cards
     - collect bets from players
         - placed bet by all players
     - award bets to winning player
@@ -19,10 +15,18 @@ table:
         - change dealer
         - new deck
         - reset every player cards
+    - move dealer position
         
 game control:
-    - initiallise player
-    - initiallise table
+    - create deck
+    - add player
+    - remove player
+    - boardcast
+
+    - deal player cards preflop
+    - deal community cards
+
+    - handle player action
 
     - preflop betting round
     - flop betting round
@@ -30,6 +34,8 @@ game control:
     - river betting round
 
     - check winner
+
+    - reset deck
 
 betting rounnd:
     - check player in action (the one behind dealer)
