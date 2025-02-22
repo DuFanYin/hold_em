@@ -54,9 +54,10 @@ io.on("connection", (socket) => {
   socket.on("playerAction", ({ roomId, action, amount }) => {
     const gameControl = rooms[roomId];
     if (gameControl) {
+        // Pass the player action to the appropriate BettingRound instance
         gameControl.handlePlayerAction(action, amount);
     }
-  });
+});
 
   socket.on("disconnect", () => {
     for (const roomId in rooms) {

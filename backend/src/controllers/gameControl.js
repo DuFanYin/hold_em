@@ -9,7 +9,7 @@ class GameController {
       this.table = new Table();
       this.currentBettingRound = null;
       this.roundNumber = 0;
-      this.roundPhase = 'preflop';
+      this.roundPhase = 'waiting';
       this.deck = this.createDeck(); // Create and shuffle the deck
     }
 
@@ -83,34 +83,35 @@ class GameController {
       this.deck.pop(); // Remove the first card to simulate the burn card (optional)
     }
 
-    // Start a new betting round
-    runBettingRound(roundPhase) {
-        this.currentBettingRound = new BettingRound(this.io, this.table, roundPhase);
-        this.currentBettingRound.runBettingRound();
+    // Start a new betting round for each phase
+    async runBettingRound(roundPhase) {
+      this.currentBettingRound = new BettingRound(this.io, this.table, roundPhase);
+      await this.currentBettingRound.runBettingRound();
     }
 
     handlePlayerAction(action, amount) {
-      if (this.currentBettingRound) {
-          this.currentBettingRound.handlePlayerAction(action, amount);
-      }
-      
+        // Ensure that currentBettingRound exists and handle action
+        if (this.currentBettingRound) {
+            this.currentBettingRound.handlePlayerAction(action, amount);
+        }
     }
 
     // Start the game and manage rounds
     async startGame() {
         this.assignPosition();
         this.dealPlayerCards();
-    
-        this.table.roundPhase = this.roundPhase;
+
+        this.updateRoundPhase('preflop');
         await this.runBettingRound('preflop');  // Wait for preflop betting round to complete
-    
-/*
-        this.roundPhase = 'flop';
+        
         this.dealCommunityCards('flop');
-        this.table.roundPhase = this.roundPhase;
+        this.updateRoundPhase('flop');
         await this.runBettingRound('flop');  // Wait for flop betting round to complete
         
+        // Future phases (turn, river) can be uncommented and added similarly
+    }
         
+        /*
         this.roundPhase = 'turn';
         this.dealCommunityCards();
         this.runBettingRound();
@@ -119,6 +120,10 @@ class GameController {
         this.dealCommunityCards();
         this.runBettingRound();
         */
+
+    updateRoundPhase(roundPhase){
+      this.roundPhase = roundPhase;
+      this.table.roundPhase = roundPhase;
     }
 
     assignPosition(){
