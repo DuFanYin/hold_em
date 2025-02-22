@@ -77,13 +77,6 @@ class GameController {
 
       this.broadcastGameState();
     }
-    
-    handlePlayerAction(action, amount) {
-      if (this.currentBettingRound) {
-          this.currentBettingRound.handlePlayerAction(action, amount);
-      }
-      
-    }
 
     resetDeck() {
       this.deck = this.createDeck(); // Create and shuffle a new deck
@@ -94,6 +87,13 @@ class GameController {
     runBettingRound(roundPhase) {
         this.currentBettingRound = new BettingRound(this.io, this.table, roundPhase);
         this.currentBettingRound.runBettingRound();
+    }
+
+    handlePlayerAction(action, amount) {
+      if (this.currentBettingRound) {
+          this.currentBettingRound.handlePlayerAction(action, amount);
+      }
+      
     }
 
     // Start the game and manage rounds

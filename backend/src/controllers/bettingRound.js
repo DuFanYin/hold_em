@@ -16,57 +16,50 @@ class BettingRound {
 
     runBettingRound() {
         return new Promise((resolve) => {
-            console.log(`Start betting round: ${this.roundPhase}`);
-    
-            let activePlayers = this.table.players.filter(player => !player.hasFolded);
-    
-            // If all but one player folded, end the round immediately
-            if (activePlayers.length <= 1) {
-                console.log('This round finished');
-                resolve();
-                return;
-            }
-            this.handleCurrentPlayerTurn(resolve);
+          console.log(`Start betting round: ${this.roundPhase}`);
+          
+          let activePlayers = this.table.players.filter(player => !player.hasFolded);
+        
+          // If all but one player folded, end the round immediately
+          if (activePlayers.length <= 1) {
+            console.log('This round finished: 1 player');
+            resolve();
+            return;
+          }
+
+          this.handleCurrentPlayerTurn(resolve);
         });
-    }
+      }
+    
     
     handleCurrentPlayerTurn(resolve) {
         let player = this.table.players[this.currentPlayerIndex];
-    
+        
         if (player.hasFolded) {
-            this.advancePlayer(resolve);
-            return;
+          this.advancePlayer(resolve);
+          return;
         }
-    
+        
         console.log(`Waiting for ${player.name} to act...`);
         this.io.to(player.socketId).emit("playerTurn", { roundPhase: this.roundPhase });
+        }
     
-        // Listen for action from the current player only
-        const onPlayerAction = (actionData) => {
-            if (actionData.playerId !== player.id) return; // Ignore if not the current player
-    
-            // Remove listener after handling action
-            this.io.off("playerAction", onPlayerAction); 
-            this.handlePlayerAction(actionData.action, actionData.raiseAmount);
-        };
-    
-        // Attach listener for the current player's action
-        this.io.on("playerAction", onPlayerAction);
-    }
     
     advancePlayer(resolve) {
         let startIdx = this.currentPlayerIndex;
-    
+        
+        // Loop to find the next player who hasn't folded
         do {
-            this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
-    
-            // Prevent infinite loop if all players have folded
-            if (this.currentPlayerIndex === startIdx) {
-                console.log("All players folded except one. Betting round ends.");
-                return;
-            }
+        this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
+
+        // Prevent infinite loop if all players have folded
+        if (this.currentPlayerIndex === startIdx) {
+            console.log("All players folded except one. Betting round ends.");
+            resolve();
+            return;
+        }
         } while (this.table.players[this.currentPlayerIndex].hasFolded);
-    
+        
         this.handleCurrentPlayerTurn(resolve);
     }
 
@@ -89,7 +82,7 @@ class BettingRound {
         
         // After processing the action, check if round is complete
         if (this.isBettingRoundComplete(this.roundPhase)) {
-            console.log('This round finished');
+            console.log('This round finished: completed');
             this.table.collectChips(); // Collect chips if round is finished
         } else {
             // If round is not finished, move to the next player
