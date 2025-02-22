@@ -39,7 +39,7 @@ const GamePage = () => {
 
   if (!gameState) return <p>Loading game...</p>;
 
-  const handleAction = (action, amount = 0) => {
+  const playerAction = (action, amount = 0) => {
     socket.emit("playerAction", { roomId, action, amount });
     setIsUserTurn(false); // Prevent multiple actions
   };
@@ -65,14 +65,14 @@ const GamePage = () => {
               <button
                 className={`px-4 py-2 rounded ${isUserTurn ? "bg-blue-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
                 disabled={!isUserTurn}
-                onClick={() => handleAction("check")}
+                onClick={() => playerAction("check")}
               >
                 Check
               </button>
               <button
                 className={`px-4 py-2 rounded ${isUserTurn ? "bg-green-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
                 disabled={!isUserTurn}
-                onClick={() => handleAction("call")}
+                onClick={() => playerAction("call")}
               >
                 Call 
               </button>
@@ -86,14 +86,14 @@ const GamePage = () => {
               <button
                 className={`px-4 py-2 rounded ${isUserTurn ? "bg-yellow-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
                 disabled={!isUserTurn || !raiseAmount}
-                onClick={() => handleAction("raise", parseInt(raiseAmount))}
+                onClick={() => playerAction("raise", parseInt(raiseAmount))}
               >
                 Raise
               </button>
               <button
                 className={`px-4 py-2 rounded ${isUserTurn ? "bg-red-500 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
                 disabled={!isUserTurn}
-                onClick={() => handleAction("fold")}
+                onClick={() => playerAction("fold")}
               >
                 Fold
               </button>

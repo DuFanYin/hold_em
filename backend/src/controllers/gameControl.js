@@ -62,8 +62,6 @@ class GameController {
           const cards = [this.deck.pop(), this.deck.pop()]; // Deal 2 cards to each player
           player.receiveCards(cards);
         }
-
-        console.log(`Player cards dealt for room: ${this.roomId}`);
         this.broadcastGameState();
     }
 
@@ -106,12 +104,13 @@ class GameController {
         this.table.roundPhase = this.roundPhase;
         await this.runBettingRound('preflop');  // Wait for preflop betting round to complete
     
+/*
         this.roundPhase = 'flop';
         this.dealCommunityCards('flop');
         this.table.roundPhase = this.roundPhase;
         await this.runBettingRound('flop');  // Wait for flop betting round to complete
         
-        /*
+        
         this.roundPhase = 'turn';
         this.dealCommunityCards();
         this.runBettingRound();
@@ -133,6 +132,8 @@ class GameController {
 
         smallBlindPlayer.placeChips(50);
         bigBlindPlayer.placeChips(100);
+
+        this.table.betAmount = 100;
     }
 }
 
