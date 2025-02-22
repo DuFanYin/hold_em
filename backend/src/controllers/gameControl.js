@@ -86,9 +86,11 @@ class GameController {
     // Start a new betting round for each phase
     async runBettingRound(roundPhase) {
       this.currentBettingRound = new BettingRound(this.io, this.table, roundPhase);
+      this.broadcastGameState();
       await this.currentBettingRound.runBettingRound();
     }
 
+    // manage each action during betting round
     handlePlayerAction(action, amount) {
         // Ensure that currentBettingRound exists and handle action
         if (this.currentBettingRound) {

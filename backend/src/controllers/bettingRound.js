@@ -3,121 +3,130 @@ class BettingRound {
         this.io = io;
         this.table = table;
         this.roundPhase = roundPhase;
-
-        // Set the current player index based on round phase
-        if (roundPhase === "preflop") {
-            this.currentPlayerIndex = (table.dealerPosition + 3) % table.players.length;
-            this.table.betAmount = 100;
-        } else {
-            this.currentPlayerIndex = (table.dealerPosition + 1) % table.players.length;
-            this.table.betAmount = 0;
-        }
+        this.currentPlayerIndex = 0;
+        this.roundResolve = null;
+        this.playerResolve = null;
     }
 
-    runBettingRound() {
+    async runBettingRound() {
         return new Promise((resolve) => {
             console.log(`Start betting round: ${this.roundPhase}`);
+            this.roundResolve = resolve;
 
-            let activePlayers = this.table.players.filter(player => !player.hasFolded);
-
-            // If all but one player folded, end the round immediately
+            const activePlayers = this.table.players.filter(player => !player.hasFolded);
             if (activePlayers.length <= 1) {
                 console.log('This round finished: 1 player');
                 resolve();
                 return;
             }
 
-            // Start the betting round and process each player's turn
-            this.handleCurrentPlayerTurn(resolve);
+            this.processNextTurn();
         });
     }
 
-    handleCurrentPlayerTurn(resolve) {
-        let player = this.table.players[this.currentPlayerIndex];
+    async processNextTurn() {
+        const player = this.table.players[this.currentPlayerIndex];
 
         if (player.hasFolded) {
-            // Skip folded players and continue to the next player
-            this.advancePlayer(resolve);
+            this.advancePlayer();
             return;
         }
 
         console.log(`Waiting for ${player.name} to act...`);
-        this.io.to(player.socketId).emit("playerTurn");
+        this.io.to(player.socketId).emit("playerTurn");       // signal player his turn
 
-        // Handle the player's action after it is sent from the client
-        this.io.on("playerAction", (actionData) => {
-            // Ensure we only process the current player's action
-            if (actionData.playerId === player.id) {
-                this.handlePlayerAction(actionData.action, actionData.raiseAmount, () => {
-                    // Callback to continue to the next player after action
-                    resolve();
-                });
-            }
+        await new Promise(resolve => {
+            this.playerResolve = resolve; // Store the resolve function
         });
+
+        this.advancePlayer();
     }
 
-    advancePlayer(resolve) {
-        let startIdx = this.currentPlayerIndex;
+    advancePlayer() {
+        const startIdx = this.currentPlayerIndex;
 
         // Loop to find the next player who hasn't folded
         do {
             this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.table.players.length;
 
-            // Prevent infinite loop if all players have folded
             if (this.currentPlayerIndex === startIdx) {
-                console.log("All players folded except one. Betting round ends.");
-                resolve();
-                return;
+                // Check if round should end
+                if (this.isRoundEnd()) return;
+
+                if (this.isBettingRoundComplete()) {
+                    console.log("Betting round completed.");
+                    this.table.collectChips(); // Collect chips
+                    this.resolveRound();
+                    return;
+                }
             }
         } while (this.table.players[this.currentPlayerIndex].hasFolded);
 
-        // Proceed to handle the next player's turn
-        this.handleCurrentPlayerTurn(resolve);
+        this.processNextTurn();
     }
 
-    handlePlayerAction(action, raiseAmount = 0, callback) {
-        let player = this.table.players[this.currentPlayerIndex];
+    isRoundEnd() {
+        const remainingPlayers = this.table.players.filter(player => !player.hasFolded);
+
+        if (remainingPlayers.length <= 1) {
+            console.log("All players folded except one. Betting round ends.");
+            this.resolveRound();
+            return true;
+        }
+
+        if (this.roundPhase === 'preflop') {
+            const bigBlindPlayer = this.table.players.find(player => player.position === 'Big Blind');
+            if (bigBlindPlayer && bigBlindPlayer.placedChips < this.table.betAmount) {
+                console.log('Big Blind player hasn\'t acted yet. Continuing round...');
+                return false; // Don't end the round, continue until Big Blind acts
+            }
+        }
+
+        return false;
+    }
+
+    isBettingRoundComplete() {
+        const activePlayers = this.table.players.filter(player => !player.hasFolded);
+
+        if (this.roundPhase === 'preflop') {
+            const bigBlindPlayer = this.table.players.find(player => player.position === 'Big Blind');
+            if (bigBlindPlayer && bigBlindPlayer.placedChips < this.table.betAmount) {
+                return false; // Big Blind hasn't acted yet
+            }
+        }
+
+        return activePlayers.every(player => player.placedChips >= this.table.betAmount || player.hasFolded) || activePlayers.length <= 1;
+    }
+
+    resolveRound() {
+        if (this.roundResolve) {
+            this.roundResolve();
+            this.roundResolve = null;
+        }
+    }
+
+    handlePlayerAction(action, raiseAmount = 0) {
+        const player = this.table.players[this.currentPlayerIndex];
         console.log(`Player ${player.name} chose to: ${action}`);
 
-        let amountToCall = this.table.betAmount - player.placedChips;
+        let callAmount = this.table.betAmount - player.placeChips;
 
-        // Handle different types of player actions (call, raise, fold)
+        // Process the player's action
         if (action === 'call') {
-            if (amountToCall > 0) {
-                player.placeChips(amountToCall);
-            }
+            player.placeChips(callAmount);
         } else if (action === 'raise') {
             player.placeChips(raiseAmount);
-            this.table.betAmount = raiseAmount; // Update the current bet to the new raise amount
+            this.table.betAmount = raiseAmount; // Update the current bet amount
         } else if (action === 'fold') {
-            player.hasFolded = true;
+            player.hasFolded = true; // Mark the player as folded
         }
 
-        // After processing the action, check if round is complete
-        if (this.isBettingRoundComplete(this.roundPhase)) {
-            console.log('This round finished: completed');
-            this.table.collectChips(); // Collect chips if round is finished
-        } else {
-            // If round is not finished, advance to the next player
-            this.advancePlayer(callback);
+        this.broadcastGameState();
+        // Resolve player action and proceed
+        if (this.playerResolve) {
+            this.playerResolve();
+            this.playerResolve = null; // Clear the reference to avoid re-use
         }
-
-        // Call the callback to move to the next step in the round (e.g., next player)
-        if (callback) callback();
-    }
-
-    isBettingRoundComplete(roundPhase) {
-        let activePlayers = this.table.players.filter(player => !player.hasFolded);
-    
-        if (roundPhase === 'preflop') {
-            let bigBlindPlayer = this.table.players.find(player => player.position === 'Big Blind'); 
-            if (bigBlindPlayer && bigBlindPlayer.placedChips < this.table.betAmount) {
-                return false; // Big blind hasn't acted yet
-            }
-        }
-    
-        let allPlayersActed = activePlayers.every(player => player.placedChips >= this.table.betAmount || player.hasFolded);
-        return allPlayersActed || activePlayers.length <= 1;
     }
 
     broadcastGameState() {
@@ -132,6 +141,10 @@ class BettingRound {
                 },
             });
         });
+
+        console.log('broadcasted game to all playres');
+
+
     }
 }
 
